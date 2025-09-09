@@ -1,0 +1,272 @@
+<!DOCTYPE html>
+<html lang="hi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Prepe - Complete Education Platform</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <!-- Loading Screen -->
+    <div id="loadingScreen" class="loading-screen">
+        <div class="loading-content">
+            <div class="loading-logo">
+                <span class="logo-icon">📚</span>
+                <span class="logo-text">Prepe</span>
+            </div>
+            <div class="loading-spinner"></div>
+            <p class="loading-text">Loading your learning platform...</p>
+        </div>
+    </div>
+
+    <!-- Header -->
+    <header class="header" id="header">
+        <div class="container">
+            <div class="header-content">
+                <!-- Logo -->
+                <div class="logo" id="logoBtn">
+                    <span class="logo-icon">📚</span>
+                    <span class="logo-text">Prepe</span>
+                </div>
+
+                <!-- Navigation -->
+                <nav class="nav">
+                    <button class="nav-link active" data-page="dashboard">🏠 होम</button>
+                    <button class="nav-link" data-page="about">📖 हमारे बारे में</button>
+                    <button class="nav-link" data-page="contact">📧 संपर्क</button>
+                </nav>
+
+                <!-- Header Actions -->
+                <div class="header-actions">
+                    <!-- Theme Toggle -->
+                    <button class="theme-toggle" id="themeToggle" aria-label="Toggle theme">
+                        <span class="theme-icon">🌙</span>
+                    </button>
+
+                    <!-- Auth Buttons -->
+                    <div class="auth-buttons">
+                        <button class="btn btn-outline" id="loginBtn">लॉगिन</button>
+                        <button class="btn btn-primary" id="signupBtn">साइन अप</button>
+                    </div>
+
+                    <!-- User Menu (Hidden by default) -->
+                    <div class="user-menu hidden" id="userMenu">
+                        <div class="user-avatar">👤</div>
+                        <span class="user-name" id="userName">User</span>
+                        <button class="btn btn-outline btn-sm" id="logoutBtn">लॉगआउट</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <!-- Enhanced Path Bar (Breadcrumb) -->
+    <div class="path-bar-container" id="pathBarContainer">
+        <div class="container">
+            <div class="path-bar" id="pathBar">
+                <div class="current-location" id="currentLocation">
+                    <span class="location-icon">📁</span>
+                    <span class="location-text">Dashboard</span>
+                </div>
+                <nav class="breadcrumb" id="breadcrumb">
+                    <!-- Dynamic breadcrumb will be inserted here -->
+                </nav>
+                <div class="navigation-controls">
+                    <button class="nav-btn" id="backBtn" title="वापस जाएं">
+                        <span class="nav-icon">←</span>
+                    </button>
+                    <button class="nav-btn" id="homeBtn" title="होम">
+                        <span class="nav-icon">🏠</span>
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Main Content -->
+    <main class="main" id="mainContent">
+        <!-- Dashboard View -->
+        <section class="view active" id="dashboardView">
+            <div class="container">
+                <!-- Hero Section -->
+                <div class="hero-section">
+                    <h1 class="hero-title">आपका सफल भविष्य यहाँ से शुरू होता है</h1>
+                    <p class="hero-subtitle">भारत की #1 सरकारी नौकरी तैयारी प्लेटफार्म</p>
+                    <div class="hero-stats">
+                        <div class="stat">
+                            <div class="stat-number">10,000+</div>
+                            <div class="stat-label">सफल छात्र</div>
+                        </div>
+                        <div class="stat">
+                            <div class="stat-number">50+</div>
+                            <div class="stat-label">विषय</div>
+                        </div>
+                        <div class="stat">
+                            <div class="stat-number">1000+</div>
+                            <div class="stat-label">चैप्टर</div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Exam Categories -->
+                <div class="section">
+                    <h2 class="section-title">परीक्षा चुनें</h2>
+                    <div class="exam-grid" id="examGrid">
+                        <!-- Exam tiles will be dynamically generated -->
+                    </div>
+                </div>
+
+                <!-- Features Section -->
+                <div class="section">
+                    <h2 class="section-title">हमारी विशेषताएं</h2>
+                    <div class="features-grid">
+                        <div class="feature-card">
+                            <div class="feature-icon">📚</div>
+                            <h3 class="feature-title">विस्तृत सामग्री</h3>
+                            <p class="feature-desc">हजारों नोट्स, माइंडमैप्स और प्रैक्टिस क्वेश्चन</p>
+                        </div>
+                        <div class="feature-card">
+                            <div class="feature-icon">📱</div>
+                            <h3 class="feature-title">मोबाइल फ्रेंडली</h3>
+                            <p class="feature-desc">कहीं भी कभी भी पढ़ें, मोबाइल पर परफेक्ट एक्सपीरियंस</p>
+                        </div>
+                        <div class="feature-card">
+                            <div class="feature-icon">⚙️</div>
+                            <h3 class="feature-title">अडाप्टिव लर्निंग</h3>
+                            <p class="feature-desc">आपकी प्रोग्रेस के हिसाब से पर्सनलाइज्ड कंटेंट</p>
+                        </div>
+                        <div class="feature-card">
+                            <div class="feature-icon">🏆</div>
+                            <h3 class="feature-title">प्रोग्रेस ट्रैकिंग</h3>
+                            <p class="feature-desc">अपनी पढ़ाई की प्रोग्रेस को ट्रैक करें</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Exam View -->
+        <section class="view" id="examView">
+            <div class="container">
+                <div class="page-header">
+                    <h1 class="page-title" id="examTitle">Exam Selection</h1>
+                    <p class="page-subtitle" id="examSubtitle">Choose your exam type</p>
+                </div>
+                <div class="content-grid" id="examTypeGrid">
+                    <!-- Exam types will be dynamically generated -->
+                </div>
+            </div>
+        </section>
+
+        <!-- Subject View -->
+        <section class="view" id="subjectView">
+            <div class="container">
+                <div class="page-header">
+                    <h1 class="page-title" id="subjectTitle">Subject Selection</h1>
+                    <p class="page-subtitle" id="subjectSubtitle">Choose your subject</p>
+                </div>
+                <div class="content-grid" id="subjectGrid">
+                    <!-- Subjects will be dynamically generated -->
+                </div>
+            </div>
+        </section>
+
+        <!-- Chapter View -->
+        <section class="view" id="chapterView">
+            <div class="container">
+                <div class="page-header">
+                    <h1 class="page-title" id="chapterTitle">Chapter Selection</h1>
+                    <p class="page-subtitle" id="chapterSubtitle">Choose your chapter</p>
+                </div>
+                <div class="chapter-list" id="chapterList">
+                    <!-- Chapters will be dynamically generated -->
+                </div>
+            </div>
+        </section>
+
+        <!-- Content View -->
+        <section class="view" id="contentView">
+            <div class="container">
+                <div class="page-header">
+                    <h1 class="page-title" id="contentTitle">Content Selection</h1>
+                    <p class="page-subtitle" id="contentSubtitle">Choose your content type</p>
+                </div>
+                <div class="content-types-grid" id="contentTypesGrid">
+                    <!-- Content types will be dynamically generated -->
+                </div>
+            </div>
+        </section>
+
+        <!-- Content Display View - IFRAME BASED FOR PERFECT RENDERING -->
+        <section class="view" id="contentDisplayView">
+            <!-- Content will be loaded here with iframe for perfect rendering -->
+            <div class="content-viewer-wrapper" id="contentViewerWrapper">
+                <!-- Content iframe will be injected here -->
+            </div>
+        </section>
+    </main>
+
+    <!-- Modals -->
+    <!-- Login Modal -->
+    <div class="modal" id="loginModal">
+        <div class="modal-overlay" id="loginModalOverlay"></div>
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2 class="modal-title">लॉगिन</h2>
+                <button class="modal-close" id="loginModalClose">&times;</button>
+            </div>
+            <div class="modal-body">
+                <form class="form" id="loginForm">
+                    <div class="form-group">
+                        <label class="form-label">ईमेल</label>
+                        <input type="email" class="form-input" id="loginEmail" placeholder="अपना ईमेल डालें" required>
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">पासवर्ड</label>
+                        <input type="password" class="form-input" id="loginPassword" placeholder="अपना पासवर्ड डालें" required>
+                    </div>
+                    <button type="submit" class="btn btn-primary btn-full">लॉगिन करें</button>
+                </form>
+                <div class="modal-footer">
+                    <p>क्या आपका अकाउंट नहीं है? <a href="#" id="switchToSignup">साइन अप करें</a></p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Signup Modal -->
+    <div class="modal" id="signupModal">
+        <div class="modal-overlay" id="signupModalOverlay"></div>
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2 class="modal-title">साइन अप</h2>
+                <button class="modal-close" id="signupModalClose">&times;</button>
+            </div>
+            <div class="modal-body">
+                <form class="form" id="signupForm">
+                    <div class="form-group">
+                        <label class="form-label">नाम</label>
+                        <input type="text" class="form-input" id="signupName" placeholder="अपना नाम डालें" required>
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">ईमेल</label>
+                        <input type="email" class="form-input" id="signupEmail" placeholder="अपना ईमेल डालें" required>
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">पासवर्ड</label>
+                        <input type="password" class="form-input" id="signupPassword" placeholder="पासवर्ड बनाएं" required>
+                    </div>
+                    <button type="submit" class="btn btn-primary btn-full">अकाउंट बनाएं</button>
+                </form>
+                <div class="modal-footer">
+                    <p>पहले से अकाउंट है? <a href="#" id="switchToLogin">लॉगिन करें</a></p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Scripts -->
+    <script src="app.js"></script>
+</body>
+</html>
