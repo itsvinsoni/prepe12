@@ -1,0 +1,232 @@
+<!DOCTYPE html>
+<html lang="hi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sample Mindmap - Number System</title>
+    <style>
+        body {
+            font-family: 'Arial', sans-serif;
+            margin: 0;
+            padding: 20px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: #333;
+            line-height: 1.6;
+        }
+
+        .mindmap-container {
+            max-width: 1200px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 20px;
+            padding: 30px;
+            box-shadow: 0 20px 40px rgba(0,0,0,0.1);
+        }
+
+        .title {
+            text-align: center;
+            color: #2c3e50;
+            font-size: 2.5rem;
+            margin-bottom: 30px;
+            border-bottom: 3px solid #3498db;
+            padding-bottom: 15px;
+        }
+
+        .mindmap {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 25px;
+            margin-top: 30px;
+        }
+
+        .branch {
+            background: linear-gradient(145deg, #f8f9fa, #e9ecef);
+            border-radius: 15px;
+            padding: 20px;
+            border-left: 5px solid #3498db;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.08);
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+        }
+
+        .branch:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 25px rgba(0,0,0,0.15);
+        }
+
+        .branch h3 {
+            color: #2c3e50;
+            margin-bottom: 15px;
+            font-size: 1.3rem;
+            border-bottom: 2px solid #ecf0f1;
+            padding-bottom: 8px;
+        }
+
+        .branch ul {
+            list-style: none;
+            padding: 0;
+        }
+
+        .branch li {
+            margin: 10px 0;
+            padding: 8px 12px;
+            background: #ecf0f1;
+            border-radius: 8px;
+            position: relative;
+            padding-left: 25px;
+        }
+
+        .branch li::before {
+            content: "•";
+            color: #3498db;
+            font-weight: bold;
+            position: absolute;
+            left: 10px;
+        }
+
+        .example-box {
+            background: #e8f5e8;
+            border: 1px solid #27ae60;
+            border-radius: 10px;
+            padding: 15px;
+            margin: 20px 0;
+        }
+
+        .example-box h4 {
+            color: #27ae60;
+            margin-bottom: 10px;
+        }
+
+        .formula {
+            background: #fff3cd;
+            border: 1px solid #ffc107;
+            border-radius: 8px;
+            padding: 10px;
+            font-family: 'Courier New', monospace;
+            text-align: center;
+            font-weight: bold;
+            margin: 10px 0;
+        }
+
+        .image-placeholder {
+            width: 100%;
+            height: 200px;
+            background: linear-gradient(45deg, #ff6b6b, #4ecdc4);
+            border-radius: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-size: 1.2rem;
+            font-weight: bold;
+            margin: 15px 0;
+        }
+
+        @media (max-width: 768px) {
+            .mindmap {
+                grid-template-columns: 1fr;
+            }
+
+            .title {
+                font-size: 2rem;
+            }
+
+            body {
+                padding: 10px;
+            }
+
+            .mindmap-container {
+                padding: 20px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="mindmap-container">
+        <h1 class="title">🔢 Number System Mindmap</h1>
+
+        <div class="mindmap">
+            <div class="branch">
+                <h3>🏗️ Natural Numbers</h3>
+                <ul>
+                    <li>1, 2, 3, 4, 5, ...</li>
+                    <li>Counting numbers</li>
+                    <li>Infinite set</li>
+                    <li>No negative numbers</li>
+                </ul>
+                <div class="example-box">
+                    <h4>Example:</h4>
+                    <p>First 5 natural numbers: 1, 2, 3, 4, 5</p>
+                </div>
+            </div>
+
+            <div class="branch">
+                <h3>⚪ Whole Numbers</h3>
+                <ul>
+                    <li>0, 1, 2, 3, 4, ...</li>
+                    <li>Natural numbers + Zero</li>
+                    <li>Non-negative integers</li>
+                </ul>
+                <div class="formula">
+                    W = {0, 1, 2, 3, 4, ...}
+                </div>
+            </div>
+
+            <div class="branch">
+                <h3>➕➖ Integers</h3>
+                <ul>
+                    <li>..., -3, -2, -1, 0, 1, 2, 3, ...</li>
+                    <li>Positive and negative numbers</li>
+                    <li>Includes zero</li>
+                </ul>
+                <div class="image-placeholder">
+                    Number Line Visualization
+                </div>
+            </div>
+
+            <div class="branch">
+                <h3>🔢 Rational Numbers</h3>
+                <ul>
+                    <li>Can be expressed as p/q</li>
+                    <li>q ≠ 0</li>
+                    <li>Includes decimals and fractions</li>
+                </ul>
+                <div class="example-box">
+                    <h4>Examples:</h4>
+                    <p>1/2, 0.75, -3/4, 0.333...</p>
+                </div>
+            </div>
+
+            <div class="branch">
+                <h3>🌊 Irrational Numbers</h3>
+                <ul>
+                    <li>Cannot be expressed as p/q</li>
+                    <li>Non-terminating, non-repeating decimals</li>
+                    <li>√2, π, e</li>
+                </ul>
+                <div class="formula">
+                    √2 = 1.414213562373095...
+                </div>
+            </div>
+
+            <div class="branch">
+                <h3>🎯 Real Numbers</h3>
+                <ul>
+                    <li>Rational + Irrational numbers</li>
+                    <li>All numbers on number line</li>
+                    <li>Denoted by ℝ</li>
+                </ul>
+                <div class="example-box">
+                    <h4>Properties:</h4>
+                    <p>Closure, Associative, Commutative, Distributive</p>
+                </div>
+            </div>
+        </div>
+
+        <div style="margin-top: 40px; padding: 20px; background: #f8f9fa; border-radius: 15px; text-align: center;">
+            <h3>🎯 यह sample content है जो iframe में perfect render होगा!</h3>
+            <p>आपके HTML files बिल्कुल इसी तरह से complete width में, बिना किसी formatting change के render होंगे।</p>
+            <p><strong>Images, animations, complex CSS - सब कुछ perfect रहेगा!</strong></p>
+        </div>
+    </div>
+</body>
+</html>
