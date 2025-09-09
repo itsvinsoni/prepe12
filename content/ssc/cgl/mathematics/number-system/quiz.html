@@ -1,52 +1,994 @@
 <!DOCTYPE html>
-<html lang="hi">
+<html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Quiz Sample</title>
+    <title>SSC National Events Quiz</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
     <style>
         body {
-            font-family: Arial, sans-serif;
-            margin: 0;
-            padding: 30px;
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            min-height: 100vh;
+            font-family: 'Inter', sans-serif;
         }
-        .content-container {
-            max-width: 100%;
-            background: white;
-            border-radius: 15px;
-            padding: 30px;
-            box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+        .quiz-option {
+            transition: all 0.2s ease-in-out;
         }
-        h1 { color: #2c3e50; text-align: center; margin-bottom: 30px; }
-        .sample-content { 
-            background: #f8f9fa; 
-            padding: 20px; 
-            border-radius: 10px; 
-            margin: 20px 0;
-            border-left: 4px solid #3498db;
+        .quiz-option.selected {
+            background-color: #3b82f6; /* blue-500 */
+            color: white;
+            border-color: #2563eb; /* blue-600 */
         }
-        .highlight { background: #fff3cd; padding: 15px; border-radius: 8px; margin: 15px 0; }
+        .quiz-option:hover:not(.selected) {
+            background-color: #e5e7eb; /* gray-200 */
+        }
+        .correct {
+            background-color: #22c55e !important; /* green-500 */
+            color: white !important;
+            border-color: #16a34a !important; /* green-600 */
+        }
+        .incorrect {
+            background-color: #ef4444 !important; /* red-500 */
+            color: white !important;
+            border-color: #dc2626 !important; /* red-600 */
+        }
     </style>
 </head>
-<body>
-    <div class="content-container">
-        <h1>📝 Quiz</h1>
-        <div class="sample-content">
-            <h3>Perfect Iframe Rendering</h3>
-            <p>यह content iframe में बिल्कुल perfect render होगा!</p>
-            <ul>
-                <li>Full width rendering ✅</li>
-                <li>Complete styling preserved ✅</li>
-                <li>No content truncation ✅</li>
-                <li>Responsive design ✅</li>
-            </ul>
+<body class="bg-gray-100 flex items-center justify-center min-h-screen p-4">
+
+    <div id="quiz-container" class="w-full max-w-4xl bg-white p-6 sm:p-8 rounded-2xl shadow-lg">
+        <!-- Start Screen -->
+        <div id="start-screen" class="text-center">
+            <h1 class="text-3xl sm:text-4xl font-bold text-gray-800 mb-4">SSC राष्ट्रीय घटनाक्रम प्रश्नोत्तरी</h1>
+            <p class="text-gray-600 mb-6">SSC राष्ट्रीय घटनाओं के 152 प्रश्नों के साथ अपने ज्ञान का परीक्षण करें।</p>
+            <p class="text-lg font-semibold text-gray-700 mb-8">क्या आप तैयार हैं?</p>
+            <button id="start-btn" class="w-full sm:w-auto bg-blue-600 text-white font-bold py-3 px-10 rounded-lg hover:bg-blue-700 transition-colors text-lg shadow-md">
+                प्रश्नोत्तरी शुरू करें
+            </button>
         </div>
-        <div class="highlight">
-            <strong>Note:</strong> Replace this with your actual content. 
-            The iframe viewer will render it exactly as you design it!
+
+        <!-- Quiz Screen -->
+        <div id="quiz-screen" class="hidden">
+            <div class="flex justify-between items-center mb-6">
+                <div id="question-counter" class="text-lg font-semibold text-gray-700"></div>
+                <div id="timer" class="text-lg font-bold text-blue-600 bg-blue-100 px-4 py-2 rounded-lg">00:00</div>
+            </div>
+            <div id="question" class="text-xl font-medium text-gray-800 mb-6 leading-relaxed"></div>
+            <div id="options" class="grid grid-cols-1 md:grid-cols-2 gap-4"></div>
+            <div class="mt-8 flex justify-between items-center">
+                <button id="skip-btn" class="bg-amber-400 text-black font-bold py-3 px-8 rounded-lg hover:bg-amber-500 transition-colors text-lg shadow-md">
+                    परिणाम पर जाएं
+                </button>
+                <button id="next-btn" class="bg-gray-800 text-white font-bold py-3 px-12 rounded-lg hover:bg-gray-900 transition-colors text-lg shadow-md disabled:opacity-50 disabled:cursor-not-allowed">
+                    अगला
+                </button>
+            </div>
+        </div>
+
+        <!-- Result Dashboard -->
+        <div id="result-dashboard" class="hidden text-center">
+            <h2 class="text-3xl sm:text-4xl font-bold text-gray-800 mb-6">आपका परिणाम</h2>
+            <div class="grid grid-cols-2 sm:grid-cols-2 md:grid-cols-4 gap-4 sm:gap-6 mb-8 text-white">
+                <div class="bg-blue-500 p-4 rounded-xl shadow-lg">
+                    <p class="text-lg sm:text-xl font-semibold">कुल प्रश्न</p>
+                    <p id="total-questions" class="text-3xl font-bold">152</p>
+                </div>
+                <div class="bg-green-500 p-4 rounded-xl shadow-lg">
+                    <p class="text-lg sm:text-xl font-semibold">सही उत्तर</p>
+                    <p id="correct-answers" class="text-3xl font-bold">0</p>
+                </div>
+                <div class="bg-red-500 p-4 rounded-xl shadow-lg">
+                    <p class="text-lg sm:text-xl font-semibold">गलत उत्तर</p>
+                    <p id="incorrect-answers" class="text-3xl font-bold">0</p>
+                </div>
+                <div class="bg-indigo-500 p-4 rounded-xl shadow-lg">
+                    <p class="text-lg sm:text-xl font-semibold">सटीकता</p>
+                    <p id="accuracy" class="text-3xl font-bold">0%</p>
+                </div>
+            </div>
+            <div class="bg-gray-100 p-6 rounded-xl shadow-inner">
+                <p class="text-xl font-semibold text-gray-700">लिया गया समय</p>
+                <p id="time-taken" class="text-4xl font-bold text-gray-800 mt-2">00:00</p>
+            </div>
+            <button id="restart-btn" class="mt-8 w-full sm:w-auto bg-blue-600 text-white font-bold py-3 px-10 rounded-lg hover:bg-blue-700 transition-colors text-lg shadow-md">
+                फिर से शुरू करें
+            </button>
         </div>
     </div>
+
+    <script>
+        const quizData = [
+            {
+                question: "10 अप्रैल 2017 को, लोकसभा ने संविधान (123वां संशोधन) विधेयक, 2017 पारित किया। यह विधेयक किसे संवैधानिक दर्जा देना चाहता है? (On 10 April 2017, Lok Sabha passed Constitution (123rd Amendment) Bill, 2017. The Bill seeks to give Constitutional Status to)",
+                options: ["राष्ट्रीय मानवाधिकार आयोग (National Human Rights Commission)", "राष्ट्रीय पिछड़ा वर्ग आयोग (National Commission on Backward Classes)", "राष्ट्रीय वित्त आयोग (National Finance Commission)", "राष्ट्रीय महिला आयोग (National Commission for Women)"],
+                answer: "राष्ट्रीय पिछड़ा वर्ग आयोग (National Commission on Backward Classes)"
+            },
+            {
+                question: "2019 के चुनावों के बाद चुनी गई लोकसभा ______ लोकसभा है। (The Lok Sabha elected after the 2019 elections is the ______ Lok Sabha.)",
+                options: ["18वीं (18th)", "16वीं (16th)", "15वीं (15th)", "17वीं (17th)"],
+                answer: "17वीं (17th)"
+            },
+            {
+                question: "30 मई, 2019 को आंध्र प्रदेश के नए मुख्यमंत्री के रूप में किसने शपथ ली? (Who was sworn in as the new chief minister of Andhra Pradesh on 30th May, 2019?)",
+                options: ["चंद्रबाबू नायडू (Chandrababu Naidu)", "रघुवीरा रेड्डी (Raghuveera Reddy)", "पवन कल्याण (Pawan Kalyan)", "वाईएस जगन मोहन रेड्डी (YS Jagan Mohan Reddy)"],
+                answer: "वाईएस जगन मोहन रेड्डी (YS Jagan Mohan Reddy)"
+            },
+            {
+                question: "रमेश बैस को 2023 में महाराष्ट्र का राज्यपाल नियुक्त किए जाने से पहले वे निम्नलिखित में से किस राज्य के राज्यपाल थे? (Ramesh Bais served as Governor in which of the following states before being appointed as Governor of Maharashtra in 2023?)",
+                options: ["ओडिशा (Odisha)", "कर्नाटक (Karnataka)", "झारखंड (Jharkhand)", "पश्चिम बंगाल (West Bengal)"],
+                answer: "झारखंड (Jharkhand)"
+            },
+            {
+                question: "26 जनवरी 2023 को गणतंत्र दिवस परेड में मुख्य अतिथि कौन थे? (Who was the Chief guest on 26th January 2023 Republic Day Parade?)",
+                options: ["सिरिल रामफोसा (Cyril Ramaphosa)", "शिंजो आबे (Shinzo Abe)", "जायर बोल्सोनारो (Jair Bolsonaro)", "अब्देल फत्ताह अल-सिसी (Abdel Fattah El Sisi)"],
+                answer: "अब्देल फत्ताह अल-सिसी (Abdel Fattah El Sisi)"
+            },
+            {
+                question: "अक्टूबर 2022 में भारत में 75 डिजिटल बैंकिंग इकाइयां (DBU) का उद्घाटन निम्नलिखित में से किसने किया? (Who among the following Inaugurated 75 Digital Banking Units (DBU) in October 2022 In India?)",
+                options: ["भारत के गृह मंत्री (Home Minister of India)", "भारत के प्रधानमंत्री (Prime Minister of India)", "भारत के राष्ट्रपति (President of India)", "भारत के रक्षा मंत्री (Defence Minister of India)"],
+                answer: "भारत के प्रधानमंत्री (Prime Minister of India)"
+            },
+            {
+                question: "2023 में, उपभोक्ता मामले, भारत सरकार मंत्रालय ने 'एंडोर्समेंट्स नो-हाउ' शीर्षक से दिशानिर्देशों का अनावरण किया, जो किसके लिए हैं? (In 2023, the Ministry of Consumer Affairs, Government of India unveiled guidelines title Endorsements Know-How's' that are meant for)",
+                options: ["जंक फूड उत्पादक (junk food producers)", "तत्काल खाद्य उत्पादक (instant food producers)", "उत्पादों के उपभोक्ता (consumers of products)", "सोशल मीडिया इन्फ्लुएंसर (social media influencers)"],
+                answer: "सोशल मीडिया इन्फ्लुएंसर (social media influencers)"
+            },
+            {
+                question: "किस राज्य की विधान सभा ने 9 जनवरी, 2020 को एक नया लोगो अपनाया? (The Legislative Assembly of which state adopted a new logo on the 9th January, 2020?)",
+                options: ["असम (Assam)", "आंध्र प्रदेश (Andhra Pradesh)", "अरुणाचल प्रदेश (Arunachal Pradesh)", "त्रिपुरा (Tripura)"],
+                answer: "अरुणाचल प्रदेश (Arunachal Pradesh)"
+            },
+            {
+                question: "न्यायमूर्ति शरद अरविंद बोबडे भारत के ______ मुख्य न्यायाधीश हैं। (Justice Sharad Arvind Bobde is the ______ Chief Justice of India.)",
+                options: ["50वें (50th)", "46वें (46th)", "47वें (47th)", "37वें (37th)"],
+                answer: "47वें (47th)"
+            },
+            {
+                question: "भारत के 71वें गणतंत्र दिवस पर किस देश के राष्ट्रपति मुख्य अतिथि थे? (The President of which country was the chief guest at the 71st Republic Day of India?)",
+                options: ["स्पेन (Spain)", "अर्जेंटीना (Argentina)", "ब्राजील (Brazil)", "बेल्जियम (Belgium)"],
+                answer: "ब्राजील (Brazil)"
+            },
+            {
+                question: "31 मई, 2020 तक भारत के मुख्य सूचना आयुक्त कौन थे? (As on 31 May, 2020 who was the chief information Commissioner of India?)",
+                options: ["सुरेश चंद्रा (Suresh Chandra)", "बिमल जुल्का (Bimal Julka)", "दिव्या प्रकाश सिन्हा (Divya Prakash Sinha)", "नीरज कुमार गुप्ता (Neeraj Kumar Gupta)"],
+                answer: "बिमल जुल्का (Bimal Julka)"
+            },
+            {
+                question: "30 जून, 2020 तक, हरसिमरत कौर बादल किस मंत्रालय की भारतीय कैबिनेट मंत्री थीं? (As on 30 June, 2020, Harsimrat Kaur Badal was the Indian Cabinet Minister for the Ministry of)",
+                options: ["स्वास्थ्य और परिवार कल्याण (Health and Family Welfare)", "मानव संसाधन विकास (Human Resource Development)", "महिला और बाल विकास (Women and Child Development)", "खाद्य प्रसंस्करण उद्योग (Food Processing Industries)"],
+                answer: "खाद्य प्रसंस्करण उद्योग (Food Processing Industries)"
+            },
+            {
+                question: "30 जून, 2020 तक, कॉर्पोरेट मामलों के मंत्रालय की भारतीय कैबिनेट मंत्री ______ थीं। (The Indian Cabinet Minister Ministry of Corporate Affairs, as on 30 June, 2020 was ______)",
+                options: ["निर्मला सीतारमण (Nirmala Sitharaman)", "सुब्रह्मण्यम जयशंकर (Subrahmanyam Jaishankar)", "रविशंकर प्रसाद (Ravi Shankar Prasad)", "नितिन जयराम गडकरी (Nitin Jairam Gadkari)"],
+                answer: "निर्मला सीतारमण (Nirmala Sitharaman)"
+            },
+            {
+                question: "30 जून, 2020 तक गुजरात राज्य के मुख्यमंत्री ______ थे। (The Chief Minister of the state of Gujarat as on 30 June, 2020 was)",
+                options: ["नवीन पटनायक (Naveen Patnaik)", "प्रमोद सावंत (Pramod Sawant)", "नीतीश कुमार (Nitish Kumar)", "विजयभाई आर. रूपाणी (Vijaybhai Rupani)"],
+                answer: "विजयभाई आर. रूपाणी (Vijaybhai Rupani)"
+            },
+            {
+                question: "30 जून, 2020 तक महाराष्ट्र राज्य के राज्यपाल ______ थे। (The Governer of the state of Maharshtra as on 30 June, 2020 was)",
+                options: ["आचार्य देव व्रत (Acharya Dev Vrat)", "भगत सिंह कोश्यारी (Bhagat Singh Koshyari)", "नजमा हेपतुल्ला (Najma Heptulla)", "आनंदीबेन पटेल (Anandiben Patel)"],
+                answer: "भगत सिंह कोश्यारी (Bhagat Singh Koshyari)"
+            },
+            {
+                question: "निम्नलिखित में से कौन मसौदा राष्ट्रीय शिक्षा नीति के लिए समिति के अध्यक्ष थे, जिसे 2020 में केंद्रीय मंत्रिमंडल द्वारा अनुमोदित किया गया था? (Who among the following was the Chairman of the Committee for the Draft National Education Policy, which was approved by the Union Cabinet in 2020?)",
+                options: ["धर्मेंद्र प्रधान (Dharmendra Pradhan)", "आर एस सरकारिया (RS Sarkaria)", "मदन मोहन पुंछी (Madan Mohan Punchhi)", "के कस्तूरीरंगन (K Kasturirangan)"],
+                answer: "के कस्तूरीरंगन (K Kasturirangan)"
+            },
+            {
+                question: "अप्रैल 2021 में भारत के भावी मुख्य न्यायाधीश निम्नलिखित में से कौन थे? (Who among the following was the Chief Justice of India -designate in April 2021?)",
+                options: ["न्यायमूर्ति एन वी रमना (Justice NV Ramana)", "न्यायमूर्ति ए एम खानविलकर (Justice AM Khanwilkar)", "न्यायमूर्ति अशोक भूषण (Justice Ashok Bhushan)", "न्यायमूर्ति अरुण मिश्रा (Justice Arun Mishra)"],
+                answer: "न्यायमूर्ति एन वी रमना (Justice NV Ramana)"
+            },
+            {
+                question: "अक्टूबर 2022 में मेघालय के राज्यपाल के रूप में किसने शपथ ली? (Who took oath as the Governor of Meghalaya in October 2022?)",
+                options: ["बनवारीलाल पुरोहित (Banwarilal Purohit)", "तथागत रॉय (Tathagata Roy)", "सत्य पाल मलिक (Satya Pal Malik)", "बी. डी. मिश्रा (B. D. Mishra)"],
+                answer: "बी. डी. मिश्रा (B. D. Mishra)"
+            },
+            {
+                question: "नवंबर 2022 तक, भारत में केंद्रीय शिक्षा मंत्री कौन हैं? (As of November 2022, who is the Union Minister for Education in India?)",
+                options: ["धर्मेंद्र प्रधान (Dharmendra Pradhan)", "मनसुख मंडाविया (Mansukh Mandaviya)", "अनुराग ठाकुर (Anurag Thakur)", "किरेन रिजिजू (Kiren Rijiju)"],
+                answer: "धर्मेंद्र प्रधान (Dharmendra Pradhan)"
+            },
+            {
+                question: "मार्च 2022 में निम्नलिखित में से कौन उत्तर प्रदेश के मुख्यमंत्री बने? (Who among the following became the chief minister of Uttar Pradesh in March 2022?)",
+                options: ["अखिलेश यादव (Akhilesh Yadav)", "मायावती (Mayawati)", "मुलायम सिंह यादव (Mulayam Singh Yadav)", "योगी आदित्यनाथ (Yogi Adityanath)"],
+                answer: "योगी आदित्यनाथ (Yogi Adityanath)"
+            },
+            {
+                question: "भारत और पाकिस्तान ने ______ पर हस्ताक्षर किए थे, जिसके तहत दोनों देश मतभेदों और विवादों को द्विपक्षीय रूप से सुलझाने पर सहमत हुए। (India and Pakistan had signed the ______, under which the two countries agreed to sort out differences and disputes bilaterally.)",
+                options: ["कलकत्ता समझौता (Calcutta Pact)", "शिमला समझौता (Simla Pact)", "लखनऊ समझौता (Lucknow Pact)", "आगरा समझौता (Agra Pact)"],
+                answer: "शिमला समझौता (Simla Pact)"
+            },
+            {
+                question: "दिल्ली नगर निगम (संशोधन) विधेयक, 2022 लोकसभा में ______ मंत्रालय द्वारा प्रस्तावित किया गया था। (The Delhi Municipal Corporation (Amendment) Bill, 2022 was proposed in Lok Sabha by the Ministry of)",
+                options: ["कानून और न्याय (Law and Justice)", "रक्षा (Defence)", "सामाजिक न्याय और अधिकारिता (Social justice and Empowerment)", "गृह मामले (Home Affairs)"],
+                answer: "गृह मामले (Home Affairs)"
+            },
+            {
+                question: "10 अप्रैल 2022 तक, निम्नलिखित में से कौन तमिलनाडु के राज्यपाल हैं? (As of 10 April 2022, who among the following is the Governor of Tamil Nadu?)",
+                options: ["बनवारीलाल पुरोहित (Banwarilal Purohit)", "आर एन रवि (RN Ravi)", "जगदीश मुखी (Jagdish Mukhi)", "सी विद्यासागर राव (C Vidyasagar Rao)"],
+                answer: "आर एन रवि (RN Ravi)"
+            },
+            {
+                question: "जुलाई 2021 में, निम्नलिखित में से कौन भारत के पहले केंद्रीय सहकारिता मंत्री बने? (In July 2021, who among the following became India's first Union Minister of Cooperation?)",
+                options: ["मीनाक्षी लेखी (Meenakshi Lekhi)", "निर्मला सीतारमण (Nirmala Sitharaman)", "रमेश पोखरियाल (Ramesh Pokhriyal)", "अमित शाह (Amit Shah)"],
+                answer: "अमित शाह (Amit Shah)"
+            },
+            {
+                question: "सितंबर 2021 में, बनवारीलाल पुरोहित को ______ का राज्यपाल नियुक्त किया गया। (In September 2021, Banwarilal Purohit was appointed as the governor of)",
+                options: ["उत्तराखंड (Uttarakhand)", "गुजरात (Gujarat)", "पंजाब (Punjab)", "हरियाणा (Haryana)"],
+                answer: "पंजाब (Punjab)"
+            },
+            {
+                question: "5 अप्रैल, 2022 से संघ लोक सेवा आयोग (UPSC) के अध्यक्ष कौन हैं? (Who has been the chairman of Union Public Service Commission (UPSC) since 5 April, 2022?)",
+                options: ["डॉ. टी.सी.ए. अनंत (Dr. T.C.A. Anant)", "श्री भरत भूषण व्यास (Shri Bharat Bhushan Vyas)", "डॉ. मनोज सोनी (Dr. Manoj Soni)", "सुश्री स्मिता नागराज (Ms. Smita Nagaraj)"],
+                answer: "डॉ. मनोज सोनी (Dr. Manoj Soni)"
+            },
+            {
+                question: "भारतीय अंटार्कटिक विधेयक, 2022 भारत के ______ मंत्रालय से संबंधित है। (The Indian Antarctic Bill, 2022 belongs to ______ Ministry of India.)",
+                options: ["पृथ्वी विज्ञान (Earth Sciences)", "कानून और न्याय (Law and Justice)", "विदेश मामले (External Affairs)", "जनजातीय मामले (Tribal Affairs)"],
+                answer: "पृथ्वी विज्ञान (Earth Sciences)"
+            },
+            {
+                question: "______ ने 9 नवंबर, 2022 को भारत के 50वें मुख्य न्यायाधीश के रूप में शपथ ली। (______ take oath as the 50th Chief Justice of India on November 9, 2022.)",
+                options: ["न्यायमूर्ति डी.वाई. चंद्रचूड़ (Justice D.Y. Chandrachud)", "न्यायमूर्ति रंजन गोगोई (Justice Ranjan Gogoi)", "न्यायमूर्ति यू.यू. ललित (Justice U.U. Lalit)", "न्यायमूर्ति एन.वी. रमना (Justice N.V. Ramana)"],
+                answer: "न्यायमूर्ति डी.वाई. चंद्रचूड़ (Justice D.Y. Chandrachud)"
+            },
+            {
+                question: "दिसंबर 2021 में, सुप्रीम कोर्ट ने निम्नलिखित में से किस राज्य में स्थानीय निकाय चुनावों के लिए ओबीसी कोटा निलंबित कर दिया? (In December 2021, the Supreme Court suspended OBC quotas for local body elections in which of the following states?)",
+                options: ["पश्चिम बंगाल और ओडिशा (West Bengal and Odisha)", "महाराष्ट्र और मध्य प्रदेश (Maharashtra and Madhya Pradesh)", "बिहार और उत्तर प्रदेश (Bihar and Uttar Pradesh)", "आंध्र प्रदेश और कर्नाटक (Andhra Pradesh and Karnataka)"],
+                answer: "महाराष्ट्र और मध्य प्रदेश (Maharashtra and Madhya Pradesh)"
+            },
+            {
+                question: "निम्नलिखित में से किसे 2022 में 22वें विधि आयोग के अध्यक्ष के रूप में नियुक्त किया गया था? (Who among the following was appointed as the chairperson of the 22nd Law Commission in 2022?)",
+                options: ["न्यायमूर्ति यू यू ललित (Justice UU Lalit)", "न्यायमूर्ति वी वी रमन (Justice VV Raman)", "न्यायमूर्ति के टी शंकरन (Justice KT Shankaran)", "न्यायमूर्ति ऋतुराज अवस्थी (Justice Rituraj Awasthi)"],
+                answer: "न्यायमूर्ति ऋतुराज अवस्थी (Justice Rituraj Awasthi)"
+            },
+            {
+                question: "मार्च 2023 तक, पर्यटन के केंद्रीय मंत्री कौन हैं? (Who is the Union Minister of Tourism, as of March 2023?)",
+                options: ["हरदीप पुरी (Hardeep Puri)", "स्मृति ईरानी (Smriti Irani)", "जी किशन रेड्डी (G Kishan Reddy)", "गजेंद्र सिंह शेखावत (Gajendra Singh Shekhawat)"],
+                answer: "जी किशन रेड्डी (G Kishan Reddy)"
+            },
+            {
+                question: "दिसंबर 2022 में, गुजरात के मुख्यमंत्री के रूप में किसने शपथ ली? (In December 2022, who sworn-in as the Chief Minister of Gujarat?)",
+                options: ["विजय रूपाणी (Vijay Rupani)", "भूपेंद्र रजनीकांत पटेल (Bhupendra Rajnikant Patel)", "हार्दिक पटेल (Hardik Patel)", "आनंदीबेन पटेल (Anandiben Patel)"],
+                answer: "भूपेंद्र रजनीकांत पटेल (Bhupendra Rajnikant Patel)"
+            },
+            {
+                question: "जनवरी 2023 तक, बिजली के केंद्रीय मंत्री कौन हैं? (Who is the Union Minister of Power, as of January 2023?)",
+                options: ["पीयूष गोयल (Piyush Goyal)", "स्मृति ईरानी (Smriti Irani)", "राज कुमार सिंह (Raj Kumar Singh)", "गजेंद्र सिंह शेखावत (Gajendra Singh Shekhawat)"],
+                answer: "राज कुमार सिंह (Raj Kumar Singh)"
+            },
+            {
+                question: "1 अप्रैल 2019 से, निम्नलिखित में से कौन सा बैंक बैंक ऑफ बड़ौदा के साथ विलय हो गया है? (With effect from 1 April 2019, which of the following banks stands merged with the Bank of Baroda?)",
+                options: ["ओरिएंटल बैंक ऑफ कॉमर्स (Oriental Bank of Commerce)", "यूनाइटेड बैंक ऑफ इंडिया (United Bank of India)", "बैंक ऑफ महाराष्ट्र (Bank of Maharashtra)", "देना बैंक (Dena Bank)"],
+                answer: "देना बैंक (Dena Bank)"
+            },
+            {
+                question: "निम्नलिखित में से किस बैंक पर भारतीय रिजर्व बैंक ने मार्च 2020 में अधिस्थगन लगाया था? (On which of the following banks did the Reserve Bank of India Impose moratorium in March 2020?)",
+                options: ["आईडीएफसी फर्स्ट बैंक (IDFC First Bank)", "धनलक्ष्मी बैंक (Dhanlakshmi Bank)", "बंधन बैंक (Bandhan Bank)", "यस बैंक (Yes Bank)"],
+                answer: "यस बैंक (Yes Bank)"
+            },
+            {
+                question: "मई 2020 में भारतीय खाद्य सुरक्षा और मानक प्राधिकरण (FSSAI) के मुख्य कार्यकारी अधिकारी के रूप में किसे नियुक्त किया गया था? (Who among the following was appointed as the Chief Executive Officer of the Food Safety and Standards Authority of India (FSSAI) in May 2020?)",
+                options: ["नरिंदर बत्रा (Narender Batra)", "सिद्धार्थ मुखर्जी (Siddhartha Mukherjee)", "अरुण सिंघल (Arun Singhal)", "जी एस जी अय्यंकर (GSG Ayyankar)"],
+                answer: "अरुण सिंघल (Arun Singhal)"
+            },
+            {
+                question: "केंद्रीय बजट 2021-22 के अनुसार, सरकार ______ तक सकल घरेलू उत्पाद के 4.5% से नीचे राजकोषीय घाटे के स्तर को प्राप्त करते हुए राजकोषीय समेकन के मार्ग पर चलने की योजना बना रही है। (As per the Union Budget 2021-22. the government plans to continue on the path of fiscal consolidation, achieving a fiscal deficit level below 4.5% of GDP by)",
+                options: ["2023-24", "2022-23", "2024-25", "2025-26"],
+                answer: "2025-26"
+            },
+            {
+                question: "ओडिशा ने हर ग्रामीण घर में 100% कार्यात्मक घरेलू नल के पानी के कनेक्शन प्रदान करने के लिए ______ को लक्ष्य वर्ष के रूप में निर्धारित किया है। (Odisha has set ______ as the target year for providing 100% functional household tap water connections in every rural household.)",
+                options: ["2023-24", "2024-25", "2025-26", "2022-23"],
+                answer: "2023-24"
+            },
+            {
+                question: "आर्थिक सर्वेक्षण 2020-21 के अनुसार, शुद्ध एफपीआई (विदेशी पोर्टफोलियो निवेश) ने ______ में 9.8 बिलियन अमेरिकी डॉलर का सर्वकालिक मासिक उच्च स्तर दर्ज किया। (As per the Economic Survey 2020-21, net FPI (Foreign Portfolio Investment) recorded an all-time monthly high of US$9.8 billion in)",
+                options: ["अक्टूबर 2020 (October 2020)", "दिसंबर 2020 (December 2020)", "सितंबर 2020 (September 2020)", "नवंबर 2020 (November 2020)"],
+                answer: "नवंबर 2020 (November 2020)"
+            },
+            {
+                question: "7 अप्रैल, 2021 को भारतीय रिजर्व बैंक (RBI) की मौद्रिक नीति समिति (MPC) द्वारा घोषित रेपो दर क्या है? (What is the repo rate announced by the Reserve Bank of India's (RBI) Monetary Policy Committee (MPC) as on 7 April, 2021?)",
+                options: ["2%", "4%", "3%", "5%"],
+                answer: "4%"
+            },
+            {
+                question: "केंद्रीय बजट 2021-22 में, जल जीवन मिशन (शहरी) के तहत ______ अमृत शहरों में तरल अपशिष्ट प्रबंधन प्रदान करने का प्रस्ताव है। (In Union Budget 2021-22, there is a proposal to provide liquid waste management in ______ AMRUT cities under Jal Jeevan Mission (Urban).)",
+                options: ["150", "400", "500", "350"],
+                answer: "500"
+            },
+            {
+                question: "आर्थिक सर्वेक्षण 2020-2021 के अनुसार, भारत की वास्तविक जीडीपी वित्तीय वर्ष 2021-22 में ______ वृद्धि दर्ज करने का अनुमान है। (According to Economic Survey 2020-2021, India's real GDP is projected to record ______ growth in the Fiscal Year 2021-22.)",
+                options: ["10.8%", "12.3%", "11.0%", "13.5%"],
+                answer: "11.0%"
+            },
+            {
+                question: "2021-22 के केंद्रीय बजट के अनुसार, एक वर्ष में ______ लाख से अधिक भविष्य निधि योगदान पर अर्जित ब्याज कर योग्य हो जाएगा। (As per Union Budget for 2021-22. Interest earned on Provident Fund contribution above ______ lakhs in a year will become taxable.)",
+                options: ["1.5 रुपये (Rs. 1.5)", "1 रुपये (Rs. 1)", "2 रुपये (Rs. 2)", "2.5 रुपये (Rs. 2.5)"],
+                answer: "2.5 रुपये (Rs. 2.5)"
+            },
+            {
+                question: "आर्थिक सर्वेक्षण 2021 के अनुसार, सेंसेक्स और निफ्टी के परिणामस्वरूप भारत का बाजार पूंजीकरण-जीडीपी अनुपात अक्टूबर 2010 के बाद पहली बार ______ को पार कर गया। (As per the Economic Survey of India 2021, SENSEX and NIFTY resulted in india's market cap to GDP ratio crossing ______ for the first time since October 2010.)",
+                options: ["100%", "80%", "50%", "75%"],
+                answer: "100%"
+            },
+            {
+                question: "आर्थिक सर्वेक्षण 2020-21 में उल्लेख है कि भारत की राजकोषीय नीति में ______ की 'एक मन बिना भय' की भावना को प्रतिबिंबित करना चाहिए। (The Economic Survey of 2020-21 mentions that India's fiscal policy should reflect ______ timent of a mind without fear)",
+                options: ["जवाहरलाल नेहरू का (Jawaharlal Nehru's)", "गुरुदेव रवींद्रनाथ टैगोर का (Gurudev Rabindranath Tagore's)", "महात्मा गांधी का (Mahatma Gandhi's)", "श्यामा प्रसाद मुखर्जी का (Shyama Prasad Mukherjee's)"],
+                answer: "गुरुदेव रवींद्रनाथ टैगोर का (Gurudev Rabindranath Tagore's)"
+            },
+            {
+                question: "मई 2020 में, भारत सरकार ने आत्मनिर्भर भारत अभियान के तहत भारत के सकल घरेलू उत्पाद के ______ के बराबर एक विशेष आर्थिक और व्यापक पैकेज की घोषणा की। (In May 2020, the Government of India annouced a special economic and comprehensive package equivalent to ______ of India's GDP under Atmanirbhar Bharat Abhiyan.)",
+                options: ["10%", "20%", "25%", "15%"],
+                answer: "10%"
+            },
+            {
+                question: "केंद्रीय बजट 2021-22 में किस राज्य को राजमार्ग परियोजनाओं के लिए उच्चतम बजट आवंटित किया गया था? (Which of the following states was allocated the highest budget for highway projects in Union Budget 2021-22?)",
+                options: ["केरल (Kerala)", "पश्चिम बंगाल (West Bengal)", "तमिलनाडु (Tamil Nadu)", "असम (Assam)"],
+                answer: "तमिलनाडु (Tamil Nadu)"
+            },
+            {
+                question: "केंद्रीय बजट 2021-22 के प्रावधानों के अनुसार, कितने सार्वजनिक क्षेत्र के बैंकों को विनिवेश के लिए सूचीबद्ध किया गया है? (As per the provisions of Union Budget 2021-22, how many public sector banks have been lined up for disinvestment?)",
+                options: ["सात (Seven)", "तीन (Three)", "दो (Two)", "पांच (Five)"],
+                answer: "दो (Two)"
+            },
+            {
+                question: "वित्त मंत्री निर्मला सीतारमण ने अपने बजट 2021-22 के भाषण में, तीन वर्षों में देश भर में ______ मेगा टेक्सटाइल पार्क स्थापित करने की घोषणा की। (Finance Minister Nirmala Sitharaman announced the setting up of ______ mega textile parks across the country over three years, in her Budget 2021-22 speech.)",
+                options: ["सात (seven)", "पांच (five)", "तीन (three)", "नौ (nine)"],
+                answer: "सात (seven)"
+            },
+            {
+                question: "नवंबर 2022 तक, भारत में खाद्य प्रसंस्करण उद्योग के केंद्रीय मंत्री कौन हैं? (As of November 2022, who is the Union Minister for Food Processing Industries in India?)",
+                options: ["हरदीप सिंह पुरी (Hardeep Singh Puri)", "नित्यानंद राय (Nityanand Rai)", "पशुपति कुमार पारस (Pashupati Kumar Paras)", "राज कुमार सिंह (Raj Kumar Singh)"],
+                answer: "पशुपति कुमार पारस (Pashupati Kumar Paras)"
+            },
+            {
+                question: "अगस्त 2021 में, श्रम और रोजगार मंत्रालय ने असंगठित श्रमिकों (UWs) का एक राष्ट्रीय डेटाबेस बनाने के लिए ______ पोर्टल लॉन्च किया। (In August 2021, the Ministry of Labour and Employment launched the ______ portal for creating a National Database of Unorganized Workers (UWs).)",
+                options: ["ई-उमंग (eUmang)", "ई-रोजगार (eRozgaar)", "ई-ज्ञान (eGyan)", "ई-श्रम (eShram)"],
+                answer: "ई-श्रम (eShram)"
+            },
+            {
+                question: "भारत सरकार के किस विभाग ने अप्रैल 2022 में वन हेल्थ पायलट प्रोजेक्ट लॉन्च किया? (Which Department of the Government of India launched One Health pilot project in April 2022?)",
+                options: ["उपभोक्ता मामले विभाग (Department of Consumer Affairs)", "पशुपालन और डेयरी विभाग (Department of Animal Husbandry and Dairying)", "फार्मास्यूटिकल्स विभाग (Department of Pharmaceuticals)", "वाणिज्य विभाग (Department of Commerce)"],
+                answer: "पशुपालन और डेयरी विभाग (Department of Animal Husbandry and Dairying)"
+            },
+            {
+                question: "अप्रैल 2022 तक भारत की कौन सी ट्रेन (परीक्षण के अनुसार) सबसे तेज है? (Which of the following trains of India is the fastest (as per trial runs), as of April 2022?)",
+                options: ["वंदे भारत एक्सप्रेस (ट्रेन 18) (Vande Bharat Express (Train 18))", "महाराष्ट्र संपर्क क्रांति एक्सप्रेस (Maharashtra Sampark Kranti Express)", "हावड़ा राजधानी एक्सप्रेस (Howrah Rajdhan Express)", "हावड़ा रांची शताब्दी एक्सप्रेस (Howrah Ranchi Shatabdi Express)"],
+                answer: "वंदे भारत एक्सप्रेस (ट्रेन 18) (Vande Bharat Express (Train 18))"
+            },
+            {
+                question: "केंद्रीय बजट 2022-23 के अनुसार 14 क्षेत्रों में उत्पादन-लिंक्ड प्रोत्साहन योजना के तहत कितने नए रोजगार सृजित किए जाने हैं? (As per the Union Budget 2022-23 how many new jobs are to be created under the production-linked Incentive scheme in 14 sectors?)",
+                options: ["60 लाख (60 lakhs)", "80 लाख (80 lakhs)", "40 लाख (40 lakhs)", "20 लाख (20 lakhs)"],
+                answer: "60 लाख (60 lakhs)"
+            },
+            {
+                question: "______ ट्रांसजेंडर व्यक्तियों के लिए जुलाई 2021 में नौकरियां आरक्षित करने वाला पहला राज्य बना। (______ became the first State to reserve jobs for transgender persons in July 2021.)",
+                options: ["आंध्र प्रदेश (Andhra Pradesh)", "महाराष्ट्र (Maharashtra)", "झारखंड (Jharkhand)", "कर्नाटक (Karnataka)"],
+                answer: "कर्नाटक (Karnataka)"
+            },
+            {
+                question: "विश्व बैंक वर्गीकरण 2020-2021 के अनुसार, भारत ______ की श्रेणी में आता है। (According to the World Bank classification 2020-2021. India belongs to the category of)",
+                options: ["उच्च-मध्यम आय वाला देश (upper-middle income country)", "निम्न-आय वाला देश (Low-Income country)", "निम्न-मध्यम आय वाला देश (lower-middle Income country)", "उच्च-आय वाला देश (high-income country)"],
+                answer: "निम्न-मध्यम आय वाला देश (lower-middle Income country)"
+            },
+            {
+                question: "बजट 2023-24 के अनुसार, सरकार की प्रत्येक 1 रुपये की प्राप्ति के लिए निगम कर से कितना आता है? (As per Budget 2023-24, how much comes from corporation tax for every 1 Re receipt of the government?)",
+                options: ["4 पैसा (4 paisa)", "15 पैसा (15 paisa)", "17 पैसा (17 paisa)", "7 पैसा (7 paisa)"],
+                answer: "15 पैसा (15 paisa)"
+            },
+            {
+                question: "उस ब्रांड का नाम बताइए जिसके तहत प्रधानमंत्री नरेंद्र मोदी द्वारा अक्टूबर 2022 में शुरू की गई 'एक राष्ट्र एक उर्वरक' योजना के तहत सभी उर्वरक बेचे जाएंगे? (Name the brand under which all the fertilizers will be sold under the 'One Nation Fertilizer' scheme launched by the Prime Minister Narendra Modi in October 2022?)",
+                options: ["भारती (Bharti)", "भारतीय (Bhartiya)", "भारतवासी (Bharatwasi)", "भारत (Bharat)"],
+                answer: "भारत (Bharat)"
+            },
+            {
+                question: "जनवरी 2022 में, एस सोमनाथ को ______ का दसवां अध्यक्ष नियुक्त किया गया है। (In January 2022. S Somnath has been appointed as the tenth chairman of)",
+                options: ["आरबीआई (RBI)", "डीआरडीओ (DRDO)", "इसरो (ISRO)", "सेबी (SEBI)"],
+                answer: "इसरो (ISRO)"
+            },
+            {
+                question: "______ नीति आयोग द्वारा तैयार और नवंबर 2021 में लॉन्च किए गए पहले बहुआयामी गरीबी सूचकांक (MPI) के अनुसार सबसे गरीब राज्य के रूप में उभरा। (______ emerged as the poorest state as per the first-ever Multidimensional Poverty Index (MPI) prepared by Niti Aayog and launched in November 2021.)",
+                options: ["बिहार (Bihar)", "मध्य प्रदेश (Madhya Pradesh)", "उत्तर प्रदेश (Uttar Pradesh)", "मिजोरम (Mizoram)"],
+                answer: "बिहार (Bihar)"
+            },
+            {
+                question: "सितंबर 2021 में शुरू की गई रेल कौशल विकास योजना के तहत, भारत सरकार ने ______ वर्ष की अवधि में कुल 50,000 उम्मीदवारों को प्रशिक्षण प्रदान करने का प्रस्ताव दिया है। (Under the Rail Kaushal Vikas Yojana launched in September 2021, the Government of India has proposed to Impart training to a total of 50,000 candidates over a ______ year period.)",
+                options: ["चार (four)", "दो (two)", "पांच (five)", "तीन (three)"],
+                answer: "तीन (three)"
+            },
+            {
+                question: "2022 में सरकार द्वारा शुरू किए गए उस पोर्टल का क्या नाम है जिसका उद्देश्य आवेदक द्वारा ऋण आवेदन और संवितरण प्रक्रिया को आसान बनाना है? (What is the name of the portal launched by the Government in 2022 that aims to ease the loan application and disbursement process by the applicant?)",
+                options: ["स्वायत्त (Swayatta)", "जन समर्थ (Jan Samarth)", "ई-श्रम (E-Shram)", "युक्ति (Yukti)"],
+                answer: "जन समर्थ (Jan Samarth)"
+            },
+            {
+                question: "2023 में, स्पाइसजेट के प्रमुख अजय सिंह को निम्नलिखित में से किसका अध्यक्ष नियुक्त किया गया? (In 2023. Ajay Singh, the chief of SpiceJet was appointed as president of which of the following?)",
+                options: ["फिक्की (FICCI)", "एसोचैम (ASSOCHAM)", "सीआईआई (CII)", "नैस्कॉम (NASSCOM)"],
+                answer: "एसोचैम (ASSOCHAM)"
+            },
+            {
+                question: "2023 में जी. कृष्णकुमार को निम्नलिखित में से किसका अध्यक्ष नियुक्त किया गया? (G. Krishnakumar was appointed chairman of which of the following in 2023?)",
+                options: ["तेल और प्राकृतिक गैस निगम लिमिटेड (Oil and Natural Gas Corporation Limited)", "इंडियन ऑयल कॉर्पोरेशन लिमिटेड (Indian Oil Corporation Limited)", "भारत पेट्रोलियम कॉर्पोरेशन लिमिटेड (Bharat Petroleum Corporation Limited)", "हिंदुस्तान पेट्रोलियम कॉर्पोरेशन लिमिटेड (Hindustan Petroleum Corporation Limited)"],
+                answer: "भारत पेट्रोलियम कॉर्पोरेशन लिमिटेड (Bharat Petroleum Corporation Limited)"
+            },
+            {
+                question: "आरबीआई के पहले गवर्नर ______ थे। (The first Governor of RBI was)",
+                options: ["सर सी डी देशमुख (Sir CD Deshmukh)", "एन सी सेन गुप्ता (NC Sen Gupta)", "एच वी आर अयंगर (HVR Iyengar)", "सर ओसबोर्न स्मिथ (Sir Osborne Smith)"],
+                answer: "सर ओसबोर्न स्मिथ (Sir Osborne Smith)"
+            },
+            {
+                question: "मार्च 2023 में, जन औषधि ट्रेन को डॉ. मनसुख मंडाविया और श्री अश्विनी वैष्णव ने निम्नलिखित में से किस स्थान पर हरी झंडी दिखाई? (In March 2023, Jan Aushadhi Train was flagged off by Dr. Mansukh Mandaviya and Shri Ashwini Vaishnaw at which of the following places?)",
+                options: ["चेन्नई (Chennai)", "नई दिल्ली (New Delhi)", "कोलकाता (Kolkata)", "मुंबई (Mumbai)"],
+                answer: "नई दिल्ली (New Delhi)"
+            },
+            {
+                question: "2021 में छात्रों के लिए कक्षा 3 तक मूलभूत साक्षरता और संख्या ज्ञान प्राप्त करने के लिए शुरू की गई योजना का नाम क्या है? (What is the name of the scheme launched in 2021 for students to attain foundational literacy and numeracy up to class 3?)",
+                options: ["निपुण भारत (NIPUN Bharat)", "निष्ठा 2.0 (NISHTHA 2.0)", "सुगम (SUGAM)", "सफल (SAFAL)"],
+                answer: "निपुण भारत (NIPUN Bharat)"
+            },
+            {
+                question: "फरवरी 2022 में, किस मंत्रालय ने सांस्कृतिक विविधता को प्रोत्साहित करने और बहुभाषावाद को बढ़ावा देने और एक भारत श्रेष्ठ भारत की भावना को बढ़ावा देने के लिए 'भाषा सर्टिफिकेट सेल्फी' अभियान शुरू किया? (In February 2022, which Ministry launched a campaign Bhasha Certificate Selfie to encourage cultural diversity and promote multilingualism, and to foster the spirit of Ek Bharat Shreshtha Bharat?)",
+                options: ["शिक्षा (Education)", "संचार (Communications)", "संस्कृति (Culture)", "सामाजिक न्याय (Social Justice)"],
+                answer: "शिक्षा (Education)"
+            },
+            {
+                question: "'माना ऊरू माना बाड़ी' कार्यक्रम को ______ सरकार द्वारा मार्च 2022 में सरकारी स्कूलों में अंग्रेजी माध्यम शुरू करने के लिए औपचारिक रूप से शुरू किया गया था। (The Mana Ooru Mana Badi programme was formally launched by the ______ government in March 2022 to introduce English medium in government schools.)",
+                options: ["ओडिशा (Odisha)", "पश्चिम बंगाल (West Bengal)", "आंध्र प्रदेश (Andhra Pradesh)", "तेलंगाना (Telangana)"],
+                answer: "तेलंगाना (Telangana)"
+            },
+            {
+                question: "30 जून 2020 को भारत के नौसेनाध्यक्ष ______ थे। (The Chief of the Naval Staff of India as on 30 June 2020 was)",
+                options: ["करमबीर सिंह (Karambir Singh)", "राकेश कुमार सिंह भदौरिया (Rakesh Kumar Singh Bhadauria)", "बिपिन रावत (Bipin Rawat)", "मनोज मुकुंद नरवणे (Manoj Mukund Naravane)"],
+                answer: "करमबीर सिंह (Karambir Singh)"
+            },
+            {
+                question: "सितंबर 2022 में कोच्चि में भारत के पहले स्वदेशी विमानवाहक पोत आईएनएस विक्रांत को किसने कमीशन किया? (Who commissioned India's first Indigenous aircraft carrier INS Vikrant in Kochi in September 2022?)",
+                options: ["राजनाथ सिंह (Rajnath Singh)", "अमित शाह (Amit Shah)", "ज्योतिरादित्य सिंधिया (Jyotiraditya Scindia)", "नरेंद्र मोदी (Narendra Modi)"],
+                answer: "नरेंद्र मोदी (Narendra Modi)"
+            },
+            {
+                question: "अगस्त 2022 में समीर वेंकटपथी कामत ने रक्षा अनुसंधान और विकास संगठन के नए अध्यक्ष के रूप में किसका स्थान लिया है? (Whom has Samir Venkatapathy Kamat replaced as the new Chairman of Defence Research and Development Organisation In August 2022?)",
+                options: ["भुजंगा राव (Bhujanga Rao)", "ललित कुमार (Lalit Kumar)", "राजवंत सिंह (Rajwant Singh)", "जी सतीश रेड्डी (G Satheesh Reddy)"],
+                answer: "जी सतीश रेड्डी (G Satheesh Reddy)"
+            },
+            {
+                question: "फरवरी 2022 में 'नाइटिंगेल ऑफ इंडिया' के प्यारे उपनाम से जानी जाने वाली निम्नलिखित में से किस हस्ती का निधन हो गया? (Who among the following personalities, known by the affectionate moniker 'Nightingale of India', passed away in February 2022?)",
+                options: ["लता मंगेशकर (Lata Mangeshkar)", "सरोज खान (Saroj Khan)", "अभिलाषा पाटिल (Abhilasha Patil)", "तरला जोशी (Tarla Joshi)"],
+                answer: "लता मंगेशकर (Lata Mangeshkar)"
+            },
+            {
+                question: "फरवरी 2022 में जवाहरलाल नेहरू विश्वविद्यालय (JNU), भारत की पहली महिला कुलपति कौन बनीं? (Who among the following became the first woman Vice Chancellor of Jawaharlal Nehru University (JNU), India in February 2022?)",
+                options: ["माधुरी दीक्षित (Madhuri Dixit)", "सुप्रिया सुले (Supriya Sule)", "स्मृति ईरानी (Smriti Irani)", "शांतिश्री धुलिपुड़ी पंडित (Santishree Dhulipudi Pandit)"],
+                answer: "शांतिश्री धुलिपुड़ी पंडित (Santishree Dhulipudi Pandit)"
+            },
+            {
+                question: "सितंबर 2022 में निम्नलिखित में से किस व्यक्ति को भारत के वायु सेना प्रमुख के रूप में नियुक्त किया गया था? (Which of the following persons was appointed as Chief of the Air Staff of India in September 2022?)",
+                options: ["आरकेएस भदौरिया (RKS Bhadauria)", "हरजीत सिंह अरोड़ा (Harjit Singh Arora)", "विवेक राम चौधरी (Vivek Ram Chaudhari)", "संदीप सिंह (Sandeep Singh)"],
+                answer: "विवेक राम चौधरी (Vivek Ram Chaudhari)"
+            },
+            {
+                question: "प्रधानमंत्री नरेंद्र मोदी ने फरवरी 2022 में किस भारतीय शहर में गोबर-धन (बायो-सीएनजी) संयंत्र का उद्घाटन किया? (In which Indian city did Prime Minister Narendra Modi inaugurate the Gobar-Dhan (Bio-CNG) Plant in February 2022?)",
+                options: ["भोपाल (Bhopal)", "पुणे (Pune)", "जयपुर (Jaipur)", "इंदौर (Indore)"],
+                answer: "इंदौर (Indore)"
+            },
+            {
+                question: "अगस्त 2022 में, भारत के प्रधानमंत्री ने ______ में होमी भाभा कैंसर अस्पताल का उद्घाटन किया। (In August 2022, Prime Minister of India inaugurated Homi Bhabha Cancer Hospital in)",
+                options: ["मोहाली (Mohali)", "चेन्नई (Chennai)", "पुणे (Pune)", "नई दिल्ली (New Delhi)"],
+                answer: "मोहाली (Mohali)"
+            },
+            {
+                question: "मई 2022 में प्रशिक्षण के सफल समापन के बाद लड़ाकू एविएटर के रूप में आर्मी एविएशन कॉर्प्स में शामिल होने वाली पहली महिला अधिकारी कौन बनीं? (Who became the first woman officer to join Army Aviation Corps as Combat Aviator after the successful completion of training in May 2022?)",
+                options: ["कैप्टन अभिलाषा बराक (Captain Abhilasha Barak)", "कैप्टन शिवा चौहान (Captain Shiva Chauhan)", "कैप्टन गुरसिमरन कौर (Captain Gursimran Kaur)", "कैप्टन मंजू शर्मा (Captain Manju Sharma)"],
+                answer: "कैप्टन अभिलाषा बराक (Captain Abhilasha Barak)"
+            },
+            {
+                question: "सतीश गुजराल, जिनका मार्च 2020 में निधन हो गया, एक प्रसिद्ध ______ थे। (Satish Gujral, who passed away In March 2020, was a noted:)",
+                options: ["इतिहासकार (historian)", "पत्रकार (journalist)", "चित्रकार (painter)", "वैज्ञानिक (scientist)"],
+                answer: "चित्रकार (painter)"
+            },
+            {
+                question: "भारत में रामसर सम्मेलन आर्द्रभूमियों के संरक्षण और सभी आर्द्रभूमियों के क्षेत्रीय कार्यों और अंतर्राष्ट्रीय सहयोग के माध्यम से बुद्धिमानी से उपयोग को बढ़ावा देने के लिए निम्नलिखित में से किस वर्ष लागू हुआ? (In which of the following years did the Ramsar convention to promote conservation and wise use of all wetlands through regional actions and international cooperation come to force in India?)",
+                options: ["1989", "1990", "1980", "1982"],
+                answer: "1982"
+            },
+            {
+                question: "मृदुला सिन्हा, जिनका नवंबर 2020 में निधन हो गया, ______ की पहली महिला राज्यपाल थीं। (Mridula Sinha, who passed away in November 2020, was the first woman Governor of)",
+                options: ["गोवा (Goa)", "मिजोरम (Mizoram)", "त्रिपुरा (Tripura)", "हरियाणा (Haryana)"],
+                answer: "गोवा (Goa)"
+            },
+            {
+                question: "चौधरी अजीत सिंह, जिनका 2021 में निधन हो गया, निम्नलिखित में से किस दल के संस्थापक थे? (Chaudhary Ajit Singh, who passed away in 2021, was the founder of which of the following parties?)",
+                options: ["राष्ट्रीय लोक दल (Rashtriya Lok Dal)", "समाजवादी पार्टी (Samajwadi Party)", "बहुजन समाज पार्टी (Bahujan Samaj Party)", "भारतीय कम्युनिस्ट पार्टी (Communist Party of India)"],
+                answer: "राष्ट्रीय लोक दल (Rashtriya Lok Dal)"
+            },
+            {
+                question: "भारतीय मूल के निम्नलिखित व्यक्तियों में से कौन दिसंबर 2021 में गणित के क्षेत्र में कैडिसन-सिंगर 1959 की समस्या को हल करने के लिए चर्चा में था? (Who among following persons of Indian origin was in news in December 2021 for solving the Kadison-Singer 1959 problem in the field of mathematics?)",
+                options: ["निखिल श्रीवास्तव (Nikhil Srivastava)", "निखिल सचदेव (Nikhil Sachdev)", "सत्या नडेला (Satya Nadella)", "प्रताप भानु मेहता (Pratap Bhanu Mehta)"],
+                answer: "निखिल श्रीवास्तव (Nikhil Srivastava)"
+            },
+            {
+                question: "2021 में 'पीएम-वाणी' योजना का शुभारंभ किसने किया, जिसका उद्देश्य सार्वजनिक स्थानों पर वाई-फाई की उपलब्धता बढ़ाना है? (Who launched the 'PM-WANI' scheme in 2021, which aims to enhance Wi-Fi availability in public places?)",
+                options: ["संचार मंत्रालय (Ministry of Communications)", "इलेक्ट्रॉनिक्स और सूचना प्रौद्योगिकी मंत्रालय (Ministry of Electronics and Information Technology)", "दूरसंचार विभाग (Department of Telecommunications)", "नीति आयोग (NITI Aayog)"],
+                answer: "दूरसंचार विभाग (Department of Telecommunications)"
+            },
+            {
+                question: "'स्वच्छ भारत मिशन (शहरी) 2.0' का मुख्य फोकस क्या है? (What is the main focus of 'Swachh Bharat Mission (Urban) 2.0'?)",
+                options: ["खुले में शौच मुक्त शहर (Open Defecation Free cities)", "कचरा मुक्त शहर (Garbage Free cities)", "सभी के लिए आवास (Housing for All)", "स्मार्ट शहर (Smart Cities)"],
+                answer: "कचरा मुक्त शहर (Garbage Free cities)"
+            },
+            {
+                question: "भारत का पहला 'अमृत सरोवर' किस राज्य में स्थापित किया गया था? (In which state was India's first 'Amrit Sarovar' established?)",
+                options: ["मध्य प्रदेश (Madhya Pradesh)", "गुजरात (Gujarat)", "राजस्थान (Rajasthan)", "उत्तर प्रदेश (Uttar Pradesh)"],
+                answer: "उत्तर प्रदेश (Uttar Pradesh)"
+            },
+            {
+                question: "2023 में शुरू की गई 'मिष्टी' योजना का उद्देश्य क्या है? (What is the objective of the 'MISHTI' scheme launched in 2023?)",
+                options: ["शहरी क्षेत्रों में वृक्षारोपण (Plantation in urban areas)", "तटीय क्षेत्रों में मैंग्रोव वृक्षारोपण (Mangrove plantation in coastal areas)", "पारंपरिक कारीगरों का कौशल विकास (Skill development of traditional artisans)", "बाजरा की खेती को बढ़ावा देना (Promoting millet cultivation)"],
+                answer: "तटीय क्षेत्रों में मैंग्रोव वृक्षारोपण (Mangrove plantation in coastal areas)"
+            },
+            {
+                question: "'एक जिला एक उत्पाद' (ODOP) पहल किस मंत्रालय के अधीन है? (The 'One District One Product' (ODOP) initiative is under which ministry?)",
+                options: ["वाणिज्य और उद्योग मंत्रालय (Ministry of Commerce and Industry)", "कृषि और किसान कल्याण मंत्रालय (Ministry of Agriculture and Farmers Welfare)", "सूक्ष्म, लघु और मध्यम उद्यम मंत्रालय (Ministry of Micro, Small and Medium Enterprises)", "ग्रामीण विकास मंत्रालय (Ministry of Rural Development)"],
+                answer: "वाणिज्य और उद्योग मंत्रालय (Ministry of Commerce and Industry)"
+            },
+            {
+                question: "2022 में भारत के नए मुख्य चुनाव आयुक्त के रूप में किसे नियुक्त किया गया? (Who was appointed as the new Chief Election Commissioner of India in 2022?)",
+                options: ["सुशील चंद्रा (Sushil Chandra)", "राजीव कुमार (Rajiv Kumar)", "अनूप चंद्र पांडे (Anup Chandra Pandey)", "सुनील अरोड़ा (Sunil Arora)"],
+                answer: "राजीव कुमार (Rajiv Kumar)"
+            },
+            {
+                question: "भारत का पहला 3डी-प्रिंटेड डाकघर किस शहर में बनाया गया है? (In which city has India's first 3D-printed post office been built?)",
+                options: ["मुंबई (Mumbai)", "नई दिल्ली (New Delhi)", "बेंगलुरु (Bengaluru)", "चेन्नई (Chennai)"],
+                answer: "बेंगलuru (Bengaluru)"
+            },
+            {
+                question: "'ऑपरेशन दोस्त' किस देश में भूकंप पीड़ितों की सहायता के लिए भारत द्वारा शुरू किया गया एक बचाव अभियान था? (Operation Dost' was a rescue operation launched by India to assist earthquake victims in which country?)",
+                options: ["नेपाल (Nepal)", "इंडोनेशिया (Indonesia)", "तुर्की और सीरिया (Turkey and Syria)", "अफगानिस्तान (Afghanistan)"],
+                answer: "तुर्की और सीरिया (Turkey and Syria)"
+            },
+            {
+                question: "भारत की पहली जल मेट्रो सेवा का उद्घाटन किस शहर में किया गया? (In which city was India's first water metro service inaugurated?)",
+                options: ["कोलकाता (Kolkata)", "मुंबई (Mumbai)", "चेन्नई (Chennai)", "कोच्चि (Kochi)"],
+                answer: "कोच्चि (Kochi)"
+            },
+            {
+                question: "2023 में G20 शिखर सम्मेलन की अध्यक्षता किस देश ने की? (Which country chaired the G20 summit in 2023?)",
+                options: ["इंडोनेशिया (Indonesia)", "ब्राजील (Brazil)", "भारत (India)", "दक्षिण अफ्रीका (South Africa)"],
+                answer: "भारत (India)"
+            },
+            {
+                question: "राष्ट्रीय हरित हाइड्रोजन मिशन का मुख्य उद्देश्य क्या है? (What is the main objective of the National Green Hydrogen Mission?)",
+                options: ["भारत को ऊर्जा स्वतंत्र बनाना (To make India energy independent)", "इलेक्ट्रिक वाहनों को बढ़ावा देना (To promote electric vehicles)", "सौर ऊर्जा उत्पादन बढ़ाना (To increase solar power generation)", "जीवाश्म ईंधन के आयात को कम करना (To reduce imports of fossil fuels)"],
+                answer: "भारत को ऊर्जा स्वतंत्र बनाना (To make India energy independent)"
+            },
+            {
+                question: "'नारी शक्ति वंदन अधिनियम', जो लोकसभा और राज्य विधानसभाओं में महिलाओं के लिए 33% आरक्षण प्रदान करता है, कौन सा संविधान संशोधन अधिनियम है? (The 'Nari Shakti Vandan Adhiniyam', which provides 33% reservation for women in Lok Sabha and state assemblies, is which constitutional amendment act?)",
+                options: ["104वां (104th)", "105वां (105th)", "106वां (106th)", "103वां (103rd)"],
+                answer: "106वां (106th)"
+            },
+            {
+                question: "2023 में नीति आयोग के नए सीईओ के रूप में किसे नियुक्त किया गया? (Who was appointed as the new CEO of NITI Aayog in 2023?)",
+                options: ["परमेश्वरन अय्यर (Parameswaran Iyer)", "अमिताभ कांत (Amitabh Kant)", "बी.वी.आर. सुब्रह्मण्यम (B.V.R. Subrahmanyam)", "सुमन बेरी (Suman Bery)"],
+                answer: "बी.वी.आर. सुब्रह्मण्यम (B.V.R. Subrahmanyam)"
+            },
+            {
+                question: "'वाइब्रेंट विलेज प्रोग्राम' का फोकस क्षेत्र क्या है? (What is the focus area of the 'Vibrant Villages Programme'?)",
+                options: ["तटीय गांवों का विकास (Development of coastal villages)", "आदिवासी गांवों का विकास (Development of tribal villages)", "सीमावर्ती गांवों का विकास (Development of border villages)", "रेगिस्तानी गांवों का विकास (Development of desert villages)"],
+                answer: "सीमावर्ती गांवों का विकास (Development of border villages)"
+            },
+            {
+                question: "भारत की पहली क्षेत्रीय रैपिड ट्रांजिट सिस्टम (RRTS) का क्या नाम है? (What is the name of India's first Regional Rapid Transit System (RRTS)?)",
+                options: ["रैपिडएक्स (RAPIDX)", "भारत रैपिड (BHARAT RAPID)", "गति भारत (GATI BHARAT)", "नमो भारत (NAMO BHARAT)"],
+                answer: "नमो भारत (NAMO BHARAT)"
+            },
+            {
+                question: "'पीएम विश्वकर्मा योजना' का प्राथमिक उद्देश्य क्या है? (What is the primary objective of the 'PM Vishwakarma Scheme'?)",
+                options: ["किसानों को वित्तीय सहायता (Financial assistance to farmers)", "छात्रों को छात्रवृत्ति (Scholarships to students)", "कारीगरों और शिल्पकारों को सहायता (Support to artisans and craftspeople)", "महिला उद्यमियों को ऋण (Loans to women entrepreneurs)"],
+                answer: "कारीगरों और शिल्पकारों को सहायता (Support to artisans and craftspeople)"
+            },
+            {
+                question: "2023 में लॉन्च किया गया 'युवा संगम' पोर्टल किस पहल का हिस्सा है? (The 'Yuva Sangam' portal launched in 2023 is part of which initiative?)",
+                options: ["खेलो इंडिया (Khelo India)", "एक भारत श्रेष्ठ भारत (Ek Bharat Shreshtha Bharat)", "स्किल इंडिया (Skill India)", "स्टार्ट-अप इंडिया (Start-up India)"],
+                answer: "एक भारत श्रेष्ठ भारत (Ek Bharat Shreshtha Bharat)"
+            },
+            {
+                question: "2022 में भारत के दूसरे चीफ ऑफ डिफेंस स्टाफ (CDS) के रूप में किसे नियुक्त किया गया? (Who was appointed as the second Chief of Defence Staff (CDS) of India in 2022?)",
+                options: ["जनरल मनोज पांडे (General Manoj Pande)", "जनरल अनिल चौहान (रिटायर्ड) (General Anil Chauhan (Retd.))", "एयर चीफ मार्शल वीआर चौधरी (Air Chief Marshal VR Chaudhari)", "एडमिरल आर हरि कुमार (Admiral R Hari Kumar)"],
+                answer: "जनरल अनिल चौहान (रिटायर्ड) (General Anil Chauhan (Retd.))"
+            },
+            {
+                question: "'सागर परिक्रमा' कार्यक्रम किस मंत्रालय से संबंधित है? (The 'Sagar Parikrama' program is related to which ministry?)",
+                options: ["बंदरगाह, जहाजरानी और जलमार्ग मंत्रालय (Ministry of Ports, Shipping and Waterways)", "मत्स्य पालन, पशुपालन और डेयरी मंत्रालय (Ministry of Fisheries, Animal Husbandry and Dairying)", "रक्षा मंत्रालय (Ministry of Defence)", "पृथ्वी विज्ञान मंत्रालय (Ministry of Earth Sciences)"],
+                answer: "मत्स्य पालन, पशुपालन और डेयरी मंत्रालय (Ministry of Fisheries, Animal Husbandry and Dairying)"
+            },
+            {
+                question: "भारत में 5G सेवाओं का आधिकारिक शुभारंभ कब हुआ? (When were 5G services officially launched in India?)",
+                options: ["15 अगस्त 2022 (15th August 2022)", "1 अक्टूबर 2022 (1st October 2022)", "26 जनवरी 2023 (26th January 2023)", "2 अक्टूबर 2022 (2nd October 2022)"],
+                answer: "1 अक्टूबर 2022 (1st October 2022)"
+            },
+            {
+                question: "भारत का पहला 'डार्क स्काई रिजर्व' कहाँ स्थापित किया गया है? (Where has India's first 'Dark Sky Reserve' been established?)",
+                options: ["स्पीति, हिमाचल प्रदेश (Spiti, Himachal Pradesh)", "नुब्रा घाटी, लद्दाख (Nubra Valley, Ladakh)", "हनले, लद्दाख (Hanle, Ladakh)", "कच्छ का रण, गुजरात (Rann of Kutch, Gujarat)"],
+                answer: "हनले, लद्दाख (Hanle, Ladakh)"
+            },
+            {
+                question: "2023 में नए संसद भवन का उद्घाटन किसने किया? (Who inaugurated the new Parliament House in 2023?)",
+                options: ["भारत के राष्ट्रपति (President of India)", "भारत के प्रधानमंत्री (Prime Minister of India)", "भारत के उपराष्ट्रपति (Vice President of India)", "लोकसभा अध्यक्ष (Lok Sabha Speaker)"],
+                answer: "भारत के प्रधानमंत्री (Prime Minister of India)"
+            },
+            {
+                question: "नई एकीकृत खाद्य सुरक्षा योजना का नाम बदलकर क्या रखा गया है? (What has the new integrated food security scheme been renamed as?)",
+                options: ["प्रधानमंत्री गरीब कल्याण अन्न योजना (Pradhan Mantri Garib Kalyan Anna Yojana)", "प्रधानमंत्री अन्नदाता आय संरक्षण अभियान (Pradhan Mantri Annadata Aay Sanrakshan Abhiyan)", "प्रधानमंत्री पोषण शक्ति निर्माण (Pradhan Mantri POSHAN Shakti Nirman)", "प्रधानमंत्री अंत्योदय अन्न योजना (Pradhan Mantri Antyodaya Anna Yojana)"],
+                answer: "प्रधानमंत्री गरीब कल्याण अन्न योजना (Pradhan Mantri Garib Kalyan Anna Yojana)"
+            },
+            {
+                question: "2023 में किस भारतीय शहर ने पहली फॉर्मूला ई रेस की मेजबानी की? (Which Indian city hosted the first Formula E race in 2023?)",
+                options: ["मुंबई (Mumbai)", "नई दिल्ली (New Delhi)", "हैदराबाद (Hyderabad)", "बेंगलुरु (Bengaluru)"],
+                answer: "हैदराबाद (Hyderabad)"
+            },
+            {
+                question: "'अग्निपथ योजना' किससे संबंधित है? (What is the 'Agnipath Scheme' related to?)",
+                options: ["किसानों के लिए ऋण माफी (Loan waiver for farmers)", "सशस्त्र बलों में भर्ती (Recruitment in armed forces)", "छोटे व्यवसायों के लिए सब्सिडी (Subsidy for small businesses)", "ग्रामीण आवास (Rural housing)"],
+                answer: "सशस्त्र बलों में भर्ती (Recruitment in armed forces)"
+            },
+            {
+                question: "भारत के 82वें ग्रैंडमास्टर कौन बने हैं? (Who has become the 82nd Grandmaster of India?)",
+                options: ["प्रणेश एम (Pranesh M)", "कौस्तव चटर्जी (Koustav Chatterjee)", "वुप्पला प्रणीथ (Vuppala Praneeth)", "सायंतन दास (Sayantan Das)"],
+                answer: "वुप्पला प्रणीथ (Vuppala Praneeth)"
+            },
+            {
+                question: "'जल जन अभियान' का शुभारंभ किस राज्य में किया गया? ('Jal Jan Abhiyan' was launched in which state?)",
+                options: ["गुजरात (Gujarat)", "मध्य प्रदेश (Madhya Pradesh)", "महाराष्ट्र (Maharashtra)", "राजस्थान (Rajasthan)"],
+                answer: "राजस्थान (Rajasthan)"
+            },
+            {
+                question: "भारत का पहला पूर्ण रूप से ई-शासित राज्य कौन सा है? (Which is the first fully e-governed state of India?)",
+                options: ["कर्नाटक (Karnataka)", "केरल (Kerala)", "तमिलनाडु (Tamil Nadu)", "आंध्र प्रदेश (Andhra Pradesh)"],
+                answer: "केरल (Kerala)"
+            },
+            {
+                question: "भारत के नए अटॉर्नी जनरल के रूप में किसे नियुक्त किया गया है? (Who has been appointed as the new Attorney General of India?)",
+                options: ["के.के. वेणुगोपाल (K.K. Venugopal)", "आर. वेंकटरमणि (R. Venkataramani)", "तुषार मेहता (Tushar Mehta)", "मुकुल रोहतगी (Mukul Rohatgi)"],
+                answer: "आर. वेंकटरमणि (R. Venkataramani)"
+            },
+            {
+                question: "2023 में लॉन्च किया गया 'मेरी माटी मेरा देश' अभियान का नारा क्या है? (What is the slogan of the 'Meri Maati Mera Desh' campaign launched in 2023?)",
+                options: ["मिट्टी को नमन, वीरों का वंदन (Mitti ko Naman, Veeron ka Vandan)", "मेरा देश, मेरी मिट्टी (Mera Desh, Meri Mitti)", "भारत की मिट्टी, भारत का गौरव (Bharat ki Mitti, Bharat ka Gaurav)", "वीर भूमि, पुण्य भूमि (Veer Bhumi, Punya Bhumi)"],
+                answer: "मिट्टी को नमन, वीरों का वंदन (Mitti ko Naman, Veeron ka Vandan)"
+            },
+            {
+                question: "'राइट टू हेल्थ' विधेयक पारित करने वाला भारत का पहला राज्य कौन सा है? (Which is the first state in India to pass the 'Right to Health' bill?)",
+                options: ["केरल (Kerala)", "तमिलनाडु (Tamil Nadu)", "राजस्थान (Rajasthan)", "कर्नाटक (Karnataka)"],
+                answer: "राजस्थान (Rajasthan)"
+            },
+            {
+                question: "भारत का पहला निजी तौर पर विकसित रॉकेट कौन सा है? (Which is India's first privately developed rocket?)",
+                options: ["विक्रम-एस (Vikram-S)", "ध्रुव-1 (Dhruv-1)", "कलाम-सैट (Kalam-SAT)", "अग्नि-पी (Agni-P)"],
+                answer: "विक्रम-एस (Vikram-S)"
+            },
+            {
+                question: "'हर घर गंगाजल' परियोजना किस राज्य सरकार द्वारा शुरू की गई है? (The 'Har Ghar Gangajal' project has been launched by which state government?)",
+                options: ["उत्तर प्रदेश (Uttar Pradesh)", "उत्तराखंड (Uttarakhand)", "बिहार (Bihar)", "पश्चिम बंगाल (West Bengal)"],
+                answer: "बिहार (Bihar)"
+            },
+            {
+                question: "2023 में भारत के सर्वोच्च न्यायालय के 50वें मुख्य न्यायाधीश कौन बने? (Who became the 50th Chief Justice of the Supreme Court of India in 2023?)",
+                options: ["न्यायमूर्ति यू यू ललित (Justice U U Lalit)", "न्यायमूर्ति एन वी रमना (Justice N V Ramana)", "न्यायमूर्ति डी वाई चंद्रचूड़ (Justice D Y Chandrachud)", "न्यायमूर्ति एस ए बोबडे (Justice S A Bobde)"],
+                answer: "न्यायमूर्ति डी वाई चंद्रचूड़ (Justice D Y Chandrachud)"
+            },
+            {
+                question: "'डिजिटल इंडिया वीक 2022' का विषय क्या था? (What was the theme of 'Digital India Week 2022'?)",
+                options: ["भारत को डिजिटल रूप से सशक्त बनाना (Digitally Empowering India)", "नए भारत की उत्प्रेरणा (Catalyzing New India's Techade)", "डिजिटल इंडिया, आत्मनिर्भर भारत (Digital India, Aatmanirbhar Bharat)", "सभी के लिए प्रौद्योगिकी (Technology for All)"],
+                answer: "नए भारत की उत्प्रेरणा (Catalyzing New India's Techade)"
+            },
+            {
+                question: "भारत का पहला बायो-विलेज कहाँ स्थापित किया गया है? (Where has India's first Bio-Village been set up?)",
+                options: ["दसपारा, त्रिपुरा (Daspara, Tripura)", "मोढेरा, गुजरात (Modhera, Gujarat)", "वायनाड, केरल (Wayanad, Kerala)", "माणा, उत्तराखंड (Mana, Uttarakhand)"],
+                answer: "दसपारा, त्रिपुरा (Daspara, Tripura)"
+            },
+            {
+                question: "'वन नेशन, वन फर्टिलाइजर' योजना के तहत सभी उर्वरक किस ब्रांड नाम से बेचे जा रहे हैं? (Under the 'One Nation, One Fertilizer' scheme, all fertilizers are being sold under which brand name?)",
+                options: ["किसान (Kisan)", "भारत (Bharat)", "सोना (Sona)", "धरती (Dharti)"],
+                answer: "भारत (Bharat)"
+            },
+            {
+                question: "भारत का पहला 24x7 सौर ऊर्जा संचालित गांव कौन सा है? (Which is India's first 24x7 solar-powered village?)",
+                options: ["मोढेरा, गुजरात (Modhera, Gujarat)", "कुंभलगढ़, राजस्थान (Kumbhalgarh, Rajasthan)", "कोच्चि, केरल (Kochi, Kerala)", "कोणार्क, ओडिशा (Konark, Odisha)"],
+                answer: "मोढेरा, गुजरात (Modhera, Gujarat)"
+            },
+            {
+                question: "'पीएम-श्री स्कूल' योजना में 'श्री' का क्या अर्थ है? (What does 'Shri' stand for in the 'PM-SHRI Schools' scheme?)",
+                options: ["स्कूल्स फॉर होलिस्टिक एंड रिस्पॉन्सिबल इम्प्रूवमेंट (Schools for Holistic and Responsible Improvement)", "स्कूल्स फॉर राइजिंग इंडिया (Schools for Rising India)", "शिक्षण और अनुसंधान में सुधार के लिए स्कूल (Schools for Holistic Improvement in Teaching and Research)", "श्रेष्ठ अनुसंधान और नवाचार के लिए स्कूल (Schools for Honing Research and Innovation)"],
+                answer: "स्कूल्स फॉर राइजिंग इंडिया (Schools for Rising India)"
+            },
+            {
+                question: "भारत का पहला भूकंप स्मारक, 'स्मृति वन', किस राज्य में स्थित है? (India's first earthquake memorial, 'Smriti Van', is located in which state?)",
+                options: ["उत्तराखंड (Uttarakhand)", "गुजरात (Gujarat)", "महाराष्ट्र (Maharashtra)", "जम्मू और कश्मीर (Jammu and Kashmir)"],
+                answer: "गुजरात (Gujarat)"
+            },
+            {
+                question: "'निक्षय 2.0' पोर्टल, जिसे 2022 में लॉन्च किया गया था, किस बीमारी से संबंधित है? (The 'Nikshay 2.0' portal, launched in 2022, is associated with which disease?)",
+                options: ["एड्स (AIDS)", "मलेरिया (Malaria)", "तपेदिक (Tuberculosis)", "कैंसर (Cancer)"],
+                answer: "तपेदिक (Tuberculosis)"
+            },
+            {
+                question: "2023 में किसे भारत का नया औषधि महानियंत्रक (DCGI) नियुक्त किया गया? (Who was appointed as the new Drug Controller General of India (DCGI) in 2023?)",
+                options: ["डॉ. वी. जी. सोमानी (Dr. V. G. Somani)", "डॉ. राजीव सिंह रघुवंशी (Dr. Rajeev Singh Raghuvanshi)", "डॉ. एस. ईश्वर रेड्डी (Dr. S. Eswara Reddy)", "डॉ. पी.बी.एन. प्रसाद (Dr. P.B.N. Prasad)"],
+                answer: "डॉ. राजीव सिंह रघुवंशी (Dr. Rajeev Singh Raghuvanshi)"
+            },
+            {
+                question: "भारत का पहला राष्ट्रीय समुद्री विरासत परिसर कहाँ बनाया जा रहा है? (Where is India's first National Maritime Heritage Complex being built?)",
+                options: ["कोच्चि, केरल (Kochi, Kerala)", "विशाखापत्तनम, आंध्र प्रदेश (Visakhapatnam, Andhra Pradesh)", "लोथल, गुजरात (Lothal, Gujarat)", "मुंबई, महाराष्ट्र (Mumbai, Maharashtra)"],
+                answer: "लोथल, गुजरात (Lothal, Gujarat)"
+            },
+            {
+                question: "2022 में किस भारतीय शहर को भारत का सबसे स्वच्छ शहर घोषित किया गया (लगातार छठी बार)? (Which Indian city was declared the cleanest city of India in 2022 (for the 6th consecutive time)?)",
+                options: ["सूरत (Surat)", "इंदौर (Indore)", "नवी मुंबई (Navi Mumbai)", "मैसूर (Mysore)"],
+                answer: "इंदौर (Indore)"
+            },
+            {
+                question: "'टेली-मानस' पहल, जिसे 2022 में शुरू किया गया था, किस क्षेत्र से संबंधित है? (The 'Tele-MANAS' initiative, launched in 2022, is related to which sector?)",
+                options: ["डिजिटल शिक्षा (Digital Education)", "ग्रामीण स्वास्थ्य (Rural Healthcare)", "मानसिक स्वास्थ्य (Mental Health)", "कृषि प्रौद्योगिकी (Agricultural Technology)"],
+                answer: "मानसिक स्वास्थ्य (Mental Health)"
+            },
+            {
+                question: "भारत का पहला 'वन विश्वविद्यालय' किस राज्य में स्थापित किया जाएगा? (In which state will India's first 'Forest University' be established?)",
+                options: ["उत्तराखंड (Uttarakhand)", "तेलंगाना (Telangana)", "मध्य प्रदेश (Madhya Pradesh)", "असम (Assam)"],
+                answer: "तेलंगाना (Telangana)"
+            },
+            {
+                question: "2023 में किस भारतीय राज्य ने अपना पहला राज्य-स्तरीय पक्षी एटलस जारी किया? (Which Indian state released its first state-level bird atlas in 2023?)",
+                options: ["कर्नाटक (Karnataka)", "तमिलनाडु (Tamil Nadu)", "महाराष्ट्र (Maharashtra)", "केरल (Kerala)"],
+                answer: "केरल (Kerala)"
+            },
+            {
+                question: "भारत की पहली स्टील स्लैग रोड का निर्माण किस शहर में किया गया है? (In which city has India's first steel slag road been constructed?)",
+                options: ["जमशेदपुर (Jamshedpur)", "सूरत (Surat)", "राउरकेला (Rourkela)", "बोकारो (Bokaro)"],
+                answer: "सूरत (Surat)"
+            },
+            {
+                question: "'मिशन अमृत सरोवर' का उद्देश्य क्या है? (What is the objective of 'Mission Amrit Sarovar'?)",
+                options: ["नदियों को आपस में जोड़ना (Inter-linking of rivers)", "वर्षा जल संचयन (Rainwater harvesting)", "हर घर में नल का पानी उपलब्ध कराना (Providing tap water in every household)", "देश के प्रत्येक जिले में कम से कम 75 जल निकायों का कायाकल्प और विकास करना (Rejuvenation and development of at least 75 water bodies in each district of the country)"],
+                answer: "देश के प्रत्येक जिले में कम से कम 75 जल निकायों का कायाकल्प और विकास करना (Rejuvenation and development of at least 75 water bodies in each district of the country)"
+            },
+            {
+                question: "2023 में किस टीम ने पहला महिला प्रीमियर लीग (WPL) खिताब जीता? (Which team won the inaugural Women's Premier League (WPL) title in 2023?)",
+                options: ["दिल्ली कैपिटल्स (Delhi Capitals)", "मुंबई इंडियंस (Mumbai Indians)", "यूपी वॉरियर्ज़ (UP Warriorz)", "रॉयल चैलेंजर्स बैंगलोर (Royal Challengers Bangalore)"],
+                answer: "मुंबई इंडियंस (Mumbai Indians)"
+            },
+            {
+                question: "'समर्थ' योजना, जो हाल ही में चर्चा में थी, किस मंत्रालय से संबंधित है? (The 'SAMARTH' scheme, which was in news recently, is associated with which ministry?)",
+                options: ["शिक्षा मंत्रालय (Ministry of Education)", "कपड़ा मंत्रालय (Ministry of Textiles)", "कौशल विकास और उद्यमिता मंत्रालय (Ministry of Skill Development and Entrepreneurship)", "सूक्ष्म, लघु और मध्यम उद्यम मंत्रालय (Ministry of Micro, Small and Medium Enterprises)"],
+                answer: "कपड़ा मंत्रालय (Ministry of Textiles)"
+            },
+            {
+                question: "2022 में भारत के 15वें राष्ट्रपति के रूप में किसे चुना गया? (Who was elected as the 15th President of India in 2022?)",
+                options: ["राम नाथ कोविंद (Ram Nath Kovind)", "द्रौपदी मुर्मू (Droupadi Murmu)", "यशवंत सिन्हा (Yashwant Sinha)", "वेंकैया नायडू (Venkaiah Naidu)"],
+                answer: "द्रौपदी मुर्मू (Droupadi Murmu)"
+            },
+            {
+                question: "2022 में भारत के 14वें उपराष्ट्रपति के रूप में किसने शपथ ली? (Who took oath as the 14th Vice President of India in 2022?)",
+                options: ["मार्गरेट अल्वा (Margaret Alva)", "जगदीप धनखड़ (Jagdeep Dhankhar)", "वेंकैया नायडू (Venkaiah Naidu)", "आरिफ मोहम्मद खान (Arif Mohammad Khan)"],
+                answer: "जगदीप धनखड़ (Jagdeep Dhankhar)"
+            },
+            {
+                question: "2023 में 'प्रवासी भारतीय दिवस' सम्मेलन कहाँ आयोजित किया गया था? (Where was the 'Pravasi Bharatiya Divas' convention held in 2023?)",
+                options: ["वाराणसी (Varanasi)", "गांधीनगर (Gandhinagar)", "इंदौर (Indore)", "नई दिल्ली (New Delhi)"],
+                answer: "इंदौर (Indore)"
+            },
+            {
+                question: "'राष्ट्रीय रसद नीति 2022' का मुख्य उद्देश्य क्या है? (What is the main objective of the 'National Logistics Policy 2022'?)",
+                options: ["रेलवे नेटवर्क का विस्तार करना (To expand the railway network)", "बंदरगाहों का आधुनिकीकरण करना (To modernize the ports)", "लॉजिस्टिक्स लागत को कम करना (To reduce logistics costs)", "हवाई अड्डों का निर्माण करना (To build airports)"],
+                answer: "लॉजिस्टिक्स लागत को कम करना (To reduce logistics costs)"
+            },
+            {
+                question: "2022 में 'स्टैच्यू ऑफ प्रॉस्पेरिटी' का अनावरण किस शहर में किया गया? (In which city was the 'Statue of Prosperity' unveiled in 2022?)",
+                options: ["हैदराबाद (Hyderabad)", "बेंगलुरु (Bengaluru)", "चेन्नई (Chennai)", "अहमदाबाद (Ahmedabad)"],
+                answer: "बेंगलुरु (Bengaluru)"
+            },
+            {
+                question: "2023 में किसे भारतीय रिजर्व बैंक (RBI) के डिप्टी गवर्नर के रूप में फिर से नियुक्त किया गया? (Who was re-appointed as the Deputy Governor of the Reserve Bank of India (RBI) in 2023?)",
+                options: ["एम. राजेश्वर राव (M. Rajeshwar Rao)", "टी. रबी शंकर (T. Rabi Sankar)", "माइकल पात्रा (Michael Patra)", "शक्तिकांत दास (Shaktikanta Das)"],
+                answer: "माइकल पात्रा (Michael Patra)"
+            },
+            {
+                question: "'लखपति दीदी' योजना का उद्देश्य क्या है? (What is the objective of the 'Lakhpati Didi' scheme?)",
+                options: ["स्वयं सहायता समूहों की महिलाओं को लखपति बनने में सक्षम बनाना (To enable women of Self-Help Groups to become lakhpatis)", "महिला छात्रों को उच्च शिक्षा के लिए प्रोत्साहित करना (To encourage female students for higher education)", "ग्रामीण क्षेत्रों में महिला उद्यमियों को बढ़ावा देना (To promote women entrepreneurs in rural areas)", "कामकाजी महिलाओं के लिए छात्रावास बनाना (To build hostels for working women)"],
+                answer: "स्वयं सहायता समूहों की महिलाओं को लखपति बनने में सक्षम बनाना (To enable women of Self-Help Groups to become lakhpatis)"
+            },
+            {
+                question: "भारत का पहला स्वदेशी विमानवाहक पोत कौन सा है? (Which is India's first indigenous aircraft carrier?)",
+                options: ["आईएनएस विराट (INS Viraat)", "आईएनएस विक्रमादित्य (INS Vikramaditya)", "आईएनएस विक्रांत (INS Vikrant)", "आईएनएस अरिहंत (INS Arihant)"],
+                answer: "आईएनएस विक्रांत (INS Vikrant)"
+            },
+            {
+                question: "2023 में किस शहर को यूनेस्को द्वारा भारत का पहला 'साहित्य का शहर' नामित किया गया? (Which city was named India's first 'City of Literature' by UNESCO in 2023?)",
+                options: ["कोलकाता (Kolkata)", "कोझिकोड (Kozhikode)", "जयपुर (Jaipur)", "वाराणसी (Varanasi)"],
+                answer: "कोझिकोड (Kozhikode)"
+            },
+            {
+                question: "'आयुष्मान भारत डिजिटल मिशन' का मुख्य उद्देश्य क्या है? (What is the main objective of the 'Ayushman Bharat Digital Mission'?)",
+                options: ["सभी के लिए मुफ्त स्वास्थ्य बीमा (Free health insurance for all)", "देश के प्रत्येक नागरिक के लिए स्वास्थ्य आईडी बनाना (Creating health IDs for every citizen of the country)", "नए अस्पताल और क्लीनिक खोलना (Opening new hospitals and clinics)", "स्वास्थ्य सेवा में निजी निवेश को बढ़ावा देना (Promoting private investment in healthcare)"],
+                answer: "देश के प्रत्येक नागरिक के लिए स्वास्थ्य आईडी बनाना (Creating health IDs for every citizen of the country)"
+            },
+            {
+                question: "भारत का सबसे लंबा समुद्री पुल, मुंबई ट्रांस हार्बर लिंक, का नाम किसके नाम पर रखा गया है? (India's longest sea bridge, the Mumbai Trans Harbour Link, has been named after whom?)",
+                options: ["सरदार वल्लभभाई पटेल (Sardar Vallabhbhai Patel)", "अटल बिहारी वाजपेयी (Atal Bihari Vajpayee)", "श्यामा प्रसाद मुखर्जी (Syama Prasad Mookerjee)", "वीर सावरकर (Veer Savarkar)"],
+                answer: "अटल बिहारी वाजपेयी (Atal Bihari Vajpayee)"
+            },
+            {
+                question: "2023 में भारत का पहला केबल-स्टे रेल ब्रिज 'अंजी खड ब्रिज' कहाँ पूरा हुआ? (Where was India's first cable-stayed rail bridge, 'Anji Khad Bridge', completed in 2023?)",
+                options: ["अरुणाचल प्रदेश (Arunachal Pradesh)", "सिक्किम (Sikkim)", "उत्तराखंड (Uttarakhand)", "जम्मू और कश्मीर (Jammu and Kashmir)"],
+                answer: "जम्मू और कश्मीर (Jammu and Kashmir)"
+            },
+            {
+                question: "'स्टार्टअप इंडिया सीड फंड स्कीम' किस मंत्रालय द्वारा शुरू की गई है? ('Startup India Seed Fund Scheme' has been launched by which ministry?)",
+                options: ["वित्त मंत्रालय (Ministry of Finance)", "सूक्ष्म, लघु और मध्यम उद्यम मंत्रालय (Ministry of Micro, Small and Medium Enterprises)", "विज्ञान और प्रौद्योगिकी मंत्रालय (Ministry of Science and Technology)", "वाणिज्य और उद्योग मंत्रालय (Ministry of Commerce and Industry)"],
+                answer: "वाणिज्य और उद्योग मंत्रालय (Ministry of Commerce and Industry)"
+            },
+            {
+                question: "भारत की पहली अंडरवाटर मेट्रो सेवा किस नदी के नीचे बनाई गई है? (India's first underwater metro service has been built under which river?)",
+                options: ["गंगा (Ganga)", "यमुना (Yamuna)", "ब्रह्मपुत्र (Brahmaputra)", "हुगली (Hooghly)"],
+                answer: "हुगली (Hooghly)"
+            },
+            {
+                question: "'स्वदेश दर्शन 2.0' योजना का उद्देश्य क्या है? (What is the objective of the 'Swadesh Darshan 2.0' scheme?)",
+                options: ["विदेशी पर्यटकों को आकर्षित करना (To attract foreign tourists)", "थीम-आधारित पर्यटन सर्किट विकसित करना (To develop theme-based tourist circuits)", "स्थायी और जिम्मेदार पर्यटन स्थलों का विकास करना (To develop sustainable and responsible tourism destinations)", "तीर्थ स्थलों का विकास करना (To develop pilgrimage sites)"],
+                answer: "स्थायी और जिम्मेदार पर्यटन स्थलों का विकास करना (To develop sustainable and responsible tourism destinations)"
+            },
+            {
+                question: "2023 में रेलवे बोर्ड की पहली महिला अध्यक्ष और सीईओ के रूप में किसे नियुक्त किया गया? (Who was appointed as the first woman Chairperson and CEO of the Railway Board in 2023?)",
+                options: ["जया वर्मा सिन्हा (Jaya Verma Sinha)", "स्मिता सभरवाल (Smita Sabharwal)", "विनी महाजन (Vini Mahajan)", "अर्चना जोशी (Archana Joshi)"],
+                answer: "जया वर्मा सिन्हा (Jaya Verma Sinha)"
+            },
+            {
+                question: "नए संसद भवन में स्थापित 'सेंगोल' किस राजवंश का प्रतीक है? (The 'Sengol' installed in the new Parliament House is a symbol of which dynasty?)",
+                options: ["मौर्य राजवंश (Maurya Dynasty)", "गुप्त राजवंश (Gupta Dynasty)", "चोल राजवंश (Chola Dynasty)", "विजयनगर साम्राज्य (Vijayanagara Empire)"],
+                answer: "चोल राजवंश (Chola Dynasty)"
+            },
+            {
+                question: "'मिशन लाइफ' (LiFE), जिसे 2022 में लॉन्च किया गया था, का पूर्ण रूप क्या है? (What is the full form of 'Mission LiFE', launched in 2022?)",
+                options: ["लाइट फॉर एनवायरनमेंट (Light for Environment)", "लीडरशिप फॉर एनवायरनमेंट (Leadership for Environment)", "लिविंग फॉर एनवायरनमेंट (Living for Environment)", "लाइफस्टाइल फॉर द एनवायरनमेंट (Lifestyle for the Environment)"],
+                answer: "लाइफस्टाइल फॉर द एनवायरनमेंट (Lifestyle for the Environment)"
+            }
+        ];
+
+        const startScreen = document.getElementById('start-screen');
+        const quizScreen = document.getElementById('quiz-screen');
+        const resultDashboard = document.getElementById('result-dashboard');
+
+        const startBtn = document.getElementById('start-btn');
+        const restartBtn = document.getElementById('restart-btn');
+        const nextBtn = document.getElementById('next-btn');
+        const skipBtn = document.getElementById('skip-btn');
+
+        const questionCounterEl = document.getElementById('question-counter');
+        const timerEl = document.getElementById('timer');
+        const questionEl = document.getElementById('question');
+        const optionsEl = document.getElementById('options');
+
+        const totalQuestionsEl = document.getElementById('total-questions');
+        const correctAnswersEl = document.getElementById('correct-answers');
+        const incorrectAnswersEl = document.getElementById('incorrect-answers');
+        const accuracyEl = document.getElementById('accuracy');
+        const timeTakenEl = document.getElementById('time-taken');
+
+        let currentQuestionIndex = 0;
+        let score = 0;
+        let timerInterval;
+        let secondsElapsed = 0;
+        let selectedOption = null;
+
+        startBtn.addEventListener('click', startQuiz);
+        restartBtn.addEventListener('click', startQuiz);
+        nextBtn.addEventListener('click', handleNextQuestion);
+        skipBtn.addEventListener('click', showResults);
+
+        function startQuiz() {
+            currentQuestionIndex = 0;
+            score = 0;
+            secondsElapsed = 0;
+            selectedOption = null;
+            
+            startScreen.classList.add('hidden');
+            resultDashboard.classList.add('hidden');
+            quizScreen.classList.remove('hidden');
+            
+            startTimer();
+            showQuestion();
+        }
+
+        function startTimer() {
+            timerInterval = setInterval(() => {
+                secondsElapsed++;
+                timerEl.textContent = formatTime(secondsElapsed);
+            }, 1000);
+        }
+
+        function stopTimer() {
+            clearInterval(timerInterval);
+        }
+
+        function formatTime(seconds) {
+            const mins = Math.floor(seconds / 60).toString().padStart(2, '0');
+            const secs = (seconds % 60).toString().padStart(2, '0');
+            return `${mins}:${secs}`;
+        }
+        
+        function showQuestion() {
+            resetState();
+            const currentQuestion = quizData[currentQuestionIndex];
+            questionCounterEl.textContent = `प्रश्न ${currentQuestionIndex + 1} / ${quizData.length}`;
+            questionEl.innerHTML = currentQuestion.question;
+
+            currentQuestion.options.forEach(option => {
+                const button = document.createElement('button');
+                button.innerHTML = option;
+                button.classList.add('quiz-option', 'w-full', 'p-4', 'border-2', 'rounded-lg', 'text-left', 'text-gray-700', 'font-medium', 'text-lg');
+                button.addEventListener('click', () => selectOption(button, option));
+                optionsEl.appendChild(button);
+            });
+        }
+        
+        function resetState() {
+            nextBtn.disabled = true;
+            selectedOption = null;
+            while (optionsEl.firstChild) {
+                optionsEl.removeChild(optionsEl.firstChild);
+            }
+        }
+
+        function selectOption(button, option) {
+            const options = document.querySelectorAll('.quiz-option');
+            options.forEach(opt => opt.classList.remove('selected'));
+            button.classList.add('selected');
+            selectedOption = option;
+            nextBtn.disabled = false;
+        }
+        
+        function handleNextQuestion() {
+            if (selectedOption === null) return;
+            
+            const isCorrect = selectedOption === quizData[currentQuestionIndex].answer;
+            if (isCorrect) {
+                score++;
+            }
+            
+            currentQuestionIndex++;
+            if (currentQuestionIndex < quizData.length) {
+                showQuestion();
+            } else {
+                showResults();
+            }
+        }
+
+        function showResults() {
+            stopTimer();
+            quizScreen.classList.add('hidden');
+            resultDashboard.classList.remove('hidden');
+
+            const totalQuestions = quizData.length;
+            const correctAnswers = score;
+            // The number of incorrect answers is the number of questions answered minus the correct ones.
+            // If the user skips, we consider answered questions up to currentQuestionIndex.
+            const questionsAnswered = currentQuestionIndex;
+            const incorrectAnswers = questionsAnswered - score;
+            const accuracy = questionsAnswered > 0 ? ((correctAnswers / questionsAnswered) * 100).toFixed(2) : 0;
+            
+            totalQuestionsEl.textContent = totalQuestions;
+            correctAnswersEl.textContent = correctAnswers;
+            incorrectAnswersEl.textContent = incorrectAnswers;
+            accuracyEl.textContent = `${accuracy}%`;
+            timeTakenEl.textContent = formatTime(secondsElapsed);
+        }
+
+    </script>
 </body>
 </html>
+
